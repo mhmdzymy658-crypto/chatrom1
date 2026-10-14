@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="gold">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>پرو چت</title>
+<style>
+:root,[data-theme=gold]{--gold:#d4af37;--gold2:#f5d77a;--gold-d:#8a6d12;--bg:#050505;--panel:#101010;--panel2:#171717;--line:#2a2410;--txt:#f3ead0;--mut:#9a9078;--me:#2b2208;--on:#1a1400;--glow:212,175,55;--danger:#e5484d}
+[data-theme=ocean]{--gold:#4da3ff;--gold2:#9fd0ff;--gold-d:#1d5fa8;--bg:#04070d;--panel:#0b121c;--panel2:#111b29;--line:#16283d;--txt:#e6f0fb;--mut:#7f93a8;--me:#0f2540;--on:#04121f;--glow:77,163,255}
+[data-theme=emerald]{--gold:#2fd18b;--gold2:#8df0c3;--gold-d:#15774f;--bg:#040a07;--panel:#0b1511;--panel2:#112019;--line:#153a2a;--txt:#e4f6ec;--mut:#7fa392;--me:#0d2b1f;--on:#03150d;--glow:47,209,139}
+[data-theme=rose]{--gold:#ff5f8f;--gold2:#ffa3bf;--gold-d:#a82c55;--bg:#0b0508;--panel:#160c11;--panel2:#1f1219;--line:#3a1626;--txt:#fbe8ef;--mut:#a98391;--me:#3a1223;--on:#1f0710;--glow:255,95,143}
+[data-theme=light]{--gold:#b8860b;--gold2:#d4a017;--gold-d:#8a6d12;--bg:#f6f2e8;--panel:#ffffff;--panel2:#f0ebdc;--line:#e2d9bd;--txt:#1c1a14;--mut:#7a7358;--me:#fbeec2;--on:#1a1400;--glow:184,134,11}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:Vazirmatn,Tahoma,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);overflow:hidden}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(900px 500px at 85% -10%,rgba(var(--glow),.16),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(var(--glow),.09),transparent 60%);pointer-events:none}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit;background:none}
+input,textarea{font-family:inherit;color:var(--txt)}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.hidden{display:none!important}
+.gold-text{background:linear-gradient(135deg,var(--gold2),var(--gold) 50%,var(--gold-d));-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{background:linear-gradient(135deg,var(--gold2),var(--gold) 55%,var(--gold-d));color:var(--on);font-weight:800;padding:12px 18px;border-radius:12px;width:100%}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold-d)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+
+/* auth */
+#auth{position:fixed;inset:0;display:grid;place-items:center;padding:20px;z-index:50;overflow:auto}
+.auth-card{width:min(400px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:30px 24px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.logo{font-size:2.6rem;font-weight:800;text-align:center;letter-spacing:-1px}
+.sub{text-align:center;color:var(--mut);font-size:.9rem;margin:4px 0 22px}
+.tabs{display:flex;background:var(--panel2);border-radius:12px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;padding:9px;border-radius:9px;color:var(--mut);font-weight:600}
+.tabs button.on{background:var(--me);color:var(--gold)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.8rem;color:var(--mut);margin-bottom:5px}
+.field input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1rem}
+.field input:focus{border-color:var(--gold-d);outline:none}
+.err{color:var(--danger);font-size:.85rem;min-height:1.2em;margin:4px 0 10px}
+
+/* shell */
+#app{position:fixed;inset:0;display:flex}
+#side{width:340px;max-width:100%;background:var(--panel);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;z-index:5}
+.me-bar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.av{width:44px;height:44px;border-radius:50%;background:var(--panel2);border:2px solid var(--gold-d);flex:none;display:grid;place-items:center;color:var(--gold);font-weight:800;overflow:hidden;font-size:1.1rem}
+.av img{width:100%;height:100%;object-fit:cover}
+.av.sm{width:34px;height:34px;border-width:1px;font-size:.95rem}
+.av.lg{width:96px;height:96px;font-size:2rem;border-width:3px}
+.nm{flex:1;min-width:0}
+.nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm small{color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--gold);font-size:1.1rem;flex:none}
+.icon:hover{background:var(--panel2)}
+.searchbox{padding:10px 14px;display:flex;gap:8px}
+.searchbox input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.searchbox input:focus{outline:none;border-color:var(--gold-d)}
+#list{flex:1;overflow:auto;padding:4px 8px 12px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;width:100%;text-align:start}
+.row:hover{background:var(--panel2)}
+.row.on{background:var(--me);box-shadow:inset 0 0 0 1px var(--gold-d)}
+.row .nm small{font-size:.8rem}
+.rt{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+.rt small{color:var(--mut);font-size:.7rem}
+.badge{min-width:20px;height:20px;border-radius:10px;background:var(--gold);color:var(--on);font-size:.72rem;font-weight:800;display:grid;place-items:center;padding:0 6px}
+.dot{width:10px;height:10px;border-radius:50%;background:#555;flex:none}
+.dot.on{background:#38d26b;box-shadow:0 0 8px #38d26b}
+.sec{color:var(--mut);font-size:.75rem;padding:12px 10px 4px}
+.typing{color:var(--gold)!important}
+
+#main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);cursor:default}
+.head .t{flex:1;min-width:0}
+.head .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.head .t small{color:var(--mut)}
+.head .clickable{cursor:pointer}
+#back{display:none}
+#pinbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--me);border-bottom:1px solid var(--gold-d);font-size:.9rem;cursor:pointer}
+#pinbar span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#msgs{flex:1;overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.day{align-self:center;background:var(--panel2);color:var(--mut);font-size:.75rem;padding:3px 12px;border-radius:999px;margin:8px 0}
+.msg{display:flex;gap:8px;max-width:min(78%,560px);align-self:flex-start}
+.msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.bub{background:var(--panel2);border:1px solid var(--line);border-radius:6px 18px 18px 18px;padding:8px 12px;min-width:90px;position:relative}
+.msg.mine .bub{background:var(--me);border-color:var(--gold-d);border-radius:18px 6px 18px 18px}
+.msg.big .bub{background:transparent;border-color:transparent;padding:0 6px}
+.msg.big .txt{font-size:2.6rem;line-height:1.3}
+.msg.flash .bub{animation:fl 1.2s}
+@keyframes fl{0%,60%{box-shadow:0 0 0 3px var(--gold2)}100%{box-shadow:none}}
+.who{font-size:.8rem;font-weight:600;color:var(--gold);cursor:pointer;margin-bottom:2px}
+.who small{color:var(--mut);font-weight:300;direction:ltr;display:inline-block;margin-inline-start:4px}
+.txt{white-space:pre-wrap;word-break:break-word;line-height:1.7}
+.bub img.pic{max-width:100%;max-height:300px;border-radius:12px;display:block;margin-top:4px;cursor:zoom-in}
+.bub audio{height:36px;max-width:100%;margin-top:4px}
+.bub a{word-break:break-all;color:var(--gold2)}
+.meta{font-size:.68rem;color:var(--mut);margin-top:3px;display:flex;gap:6px;justify-content:flex-end;align-items:center}
+.tick.seen{color:#4da3ff}
+.quote{border-inline-start:3px solid var(--gold);background:rgba(var(--glow),.08);padding:4px 8px;border-radius:6px;margin-bottom:5px;font-size:.82rem;color:var(--mut);cursor:pointer}
+.quote b{color:var(--gold);display:block;font-size:.78rem}
+.fwd{font-size:.75rem;color:var(--gold);margin-bottom:3px}
+.deleted{color:var(--mut);font-style:italic}
+.acts{position:absolute;top:-16px;inset-inline-end:8px;display:none;background:var(--panel);border:1px solid var(--gold-d);border-radius:10px;overflow:hidden;z-index:2}
+.msg:hover .acts,.msg.sel .acts{display:flex}
+.acts button{padding:5px 8px;font-size:.95rem}
+.acts button:hover{background:var(--panel2)}
+.rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:.8rem}
+.chip.me{border-color:var(--gold);background:var(--me)}
+.empty{margin:auto;color:var(--mut);text-align:center;line-height:2}
+
+#composer{padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel)}
+#ctx{display:flex;align-items:center;gap:8px;background:var(--panel2);border-inline-start:3px solid var(--gold);border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:.85rem}
+#ctx span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--mut)}
+#emojiPanel{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px;margin-bottom:8px;max-height:150px;overflow:auto}
+#emojiPanel button{font-size:1.35rem;padding:4px;border-radius:8px}
+#emojiPanel button:hover{background:var(--panel)}
+.bar{display:flex;align-items:flex-end;gap:6px}
+.bar textarea{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:10px 14px;resize:none;max-height:120px;line-height:1.5}
+.bar textarea:focus{outline:none;border-color:var(--gold-d)}
+.send{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold2),var(--gold) 55%,var(--gold-d));color:var(--on);font-size:1.2rem;font-weight:800;flex:none}
+.rec{color:var(--danger)!important;animation:pl 1s infinite}
+@keyframes pl{50%{opacity:.4}}
+#toBottom{position:absolute;bottom:92px;inset-inline-start:14px;background:var(--panel);border:1px solid var(--gold-d);border-radius:50%;z-index:4}
+#net{position:fixed;top:0;inset-inline:0;z-index:120;background:var(--danger);color:#fff;text-align:center;padding:8px 12px;font-size:.88rem}
+
+/* request gate */
+#dmGate{padding:20px 16px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel);text-align:center;display:grid;gap:10px;justify-items:center}
+#dmGate p{color:var(--mut);font-size:.9rem}
+#dmGate input{width:min(420px,100%);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+#dmGate .btn{width:min(420px,100%)}
+.gico{font-size:2.2rem}
+.gnote{background:var(--panel2);border-inline-start:3px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--mut);font-size:.88rem;max-width:min(420px,100%)}
+.gbtns{display:flex;gap:8px;width:min(420px,100%)}
+.row.req{cursor:pointer;background:rgba(var(--glow),.08);border:1px solid var(--gold-d);margin-bottom:4px}
+.reqbtns{display:flex;gap:4px}
+.reqbtns .ok{background:rgba(56,210,107,.18);color:#38d26b}
+.reqbtns .no{background:rgba(229,72,77,.18);color:var(--danger)}
+
+/* avatar frames (small) */
+.av.f-gold{border-color:#f5d77a;box-shadow:0 0 0 2px #8a6d12,0 0 12px rgba(245,215,122,.6)}
+.av.f-neon{border-color:#00f0ff;box-shadow:0 0 0 2px #7a00ff,0 0 14px #b400ff}
+.av.f-rainbow{border-color:#ff4d9d;box-shadow:0 0 0 2px #ffd400,0 0 0 4px #00c2ff}
+.av.f-fire{border-color:#ffb300;box-shadow:0 0 0 2px #ff3d00,0 0 14px #ff6d00}
+.av.f-ice{border-color:#e0f7ff;box-shadow:0 0 0 2px #29b6f6,0 0 12px #81d4fa}
+
+/* profile card */
+.card.pf-card{padding:0;overflow:auto;position:relative;width:min(430px,100%);text-align:center}
+.pf-top{position:relative;padding:46px 16px 40px;color:#fff;overflow:hidden;isolation:isolate}
+.pf-top>*{position:relative;z-index:1}
+.pf-top .pf-pat{position:absolute;inset:-25% -12%;z-index:0;font-size:1.5rem;opacity:.17;line-height:2.2;letter-spacing:16px;transform:rotate(-12deg);word-break:break-all;pointer-events:none;user-select:none;overflow:hidden}
+.pf-x{position:absolute;top:10px;inset-inline-start:10px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:1rem}
+.pf-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
+.stat{background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.32);border-radius:16px;padding:10px 12px;min-width:84px}
+.stat b{display:block;font-size:1.35rem;line-height:1.2}
+.stat small{font-size:.74rem;opacity:.92}
+.frame{position:relative;width:118px;height:118px;display:grid;place-items:center;border-radius:50%;flex:none}
+.frame::before{content:"";position:absolute;inset:-6px;border-radius:50%;z-index:0;opacity:0}
+.frame .av{position:relative;z-index:1;border:4px solid rgba(255,255,255,.9);background:#222;color:#fff}
+.frame.f-gold::before{opacity:1;background:conic-gradient(#fff3b0,#d4af37,#8a6d12,#f5d77a,#fff3b0);animation:spin 6s linear infinite}
+.frame.f-neon::before{opacity:1;background:conic-gradient(#00f0ff,#7a00ff,#ff00c8,#00f0ff);box-shadow:0 0 22px #9b30ff;animation:spin 3.5s linear infinite}
+.frame.f-rainbow::before{opacity:1;background:conic-gradient(#ff3b3b,#ffd400,#2bd96b,#00c2ff,#7a5cff,#ff3b9a,#ff3b3b);animation:spin 4s linear infinite}
+.frame.f-fire::before{opacity:1;background:conic-gradient(#ff3d00,#ffb300,#ff3d00,#d50000,#ff3d00);box-shadow:0 0 24px #ff6d00;animation:spin 2.5s linear infinite}
+.frame.f-ice::before{opacity:1;background:conic-gradient(#e0f7ff,#4fc3f7,#0288d1,#b3e5fc,#e0f7ff);box-shadow:0 0 18px #4fc3f7;animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pf-name{font-size:1.4rem;font-weight:800;margin-top:14px;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+.pf-id{opacity:.85;direction:ltr;font-size:.9rem}
+.pf-title{display:inline-block;margin-top:8px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:3px 14px;font-size:.82rem}
+.charm{position:absolute!important;font-size:1.9rem;filter:drop-shadow(0 0 10px rgba(255,255,255,.75));animation:flt 3.6s ease-in-out infinite;z-index:2}
+.charm.c0{top:16%;inset-inline-start:7%}
+.charm.c1{top:20%;inset-inline-end:7%;animation-delay:-1.2s}
+.charm.c2{top:62%;inset-inline-end:6%;animation-delay:-2.2s}
+@keyframes flt{50%{transform:translateY(-9px) rotate(6deg)}}
+.pf-body{background:var(--panel);margin-top:-18px;border-radius:22px 22px 0 0;padding:18px 16px 16px;text-align:start;position:relative;z-index:3}
+.pf-bio{background:var(--panel2);border-radius:14px;padding:10px 14px;line-height:1.8;margin-bottom:12px}
+.pf-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.pc{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:22px 8px 10px;text-align:center;position:relative}
+.pci{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:var(--me);border:2px solid var(--gold-d);display:grid;place-items:center}
+.pc b{display:block;font-size:1.4rem}
+.pc small{color:var(--mut)}
+.lvl-wrap{margin-bottom:12px}
+.lvl{height:9px;border-radius:9px;background:var(--panel2);overflow:hidden;margin-bottom:4px}
+.lvl i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold2));border-radius:9px}
+.lvl-wrap small{color:var(--mut)}
+.pf-tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:.9rem}
+.pf-tbl th{width:34%;text-align:start;background:var(--panel2);padding:10px 12px;color:var(--mut);font-weight:600;border-bottom:1px solid var(--line)}
+.pf-tbl td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.pf-tbl tr:last-child th,.pf-tbl tr:last-child td{border-bottom:0}
+.pf-form .field{text-align:start}
+.pf-form .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sw{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.sw button{width:40px;height:40px;border-radius:12px;border:3px solid transparent}
+.sw button.on{border-color:var(--txt)}
+.sw.fr button{width:auto;height:auto;padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:.85rem}
+.sw.fr button.on{border-color:var(--gold);color:var(--gold)}
+.lbl{color:var(--mut);font-size:.8rem;margin:6px 0 5px;text-align:start}
+.charm-in{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.charm-in input{text-align:center;font-size:1.3rem;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;z-index:80;padding:16px}
+.card{width:min(400px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--gold-d);border-radius:20px;padding:22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.card h3{margin:8px 0 2px}
+.card .id{color:var(--mut);direction:ltr}
+.acts2{display:grid;gap:8px;margin-top:16px}
+.pick{max-height:220px;overflow:auto;text-align:start;margin-top:8px}
+.pick label{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer}
+.pick label:hover{background:var(--panel2)}
+.pick input{accent-color:var(--gold);width:18px;height:18px}
+.rpick{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.rpick button{font-size:1.6rem;padding:6px 8px;border-radius:12px;background:var(--panel2)}
+.themes{display:flex;gap:10px;justify-content:center;margin:12px 0}
+.themes button{width:40px;height:40px;border-radius:50%;border:3px solid transparent}
+.themes button.on{border-color:var(--txt)}
+.setrow{display:flex;align-items:center;justify-content:space-between;padding:10px 4px;border-top:1px solid var(--line);text-align:start}
+#lightbox img{max-width:96vw;max-height:90vh;border-radius:12px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold-d);padding:10px 18px;border-radius:12px;z-index:99;font-size:.9rem;max-width:90vw}
+
+@media(max-width:760px){
+  #side{position:absolute;inset:0;width:100%;border:0}
+  #app.chat #side{display:none}
+  #back{display:grid}
+  .msg{max-width:90%}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+
+/* ===== نام‌های ویژه ===== */
+.nfx{font-weight:800}
+.nfx-glow{color:#fff;text-shadow:0 0 6px #fff,0 0 14px rgba(var(--glow),.95),0 0 26px rgba(var(--glow),.8)}
+.nfx-fire{background:linear-gradient(180deg,#fff3b0,#ffb300 40%,#ff3d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 6px #ff6d00)}
+.nfx-neon{color:#fff;text-shadow:0 0 4px #fff,0 0 10px #00f0ff,0 0 20px #7a00ff,0 0 32px #b400ff}
+.nfx-rainbow{background:linear-gradient(90deg,#ff3b3b,#ffd400,#2bd96b,#00c2ff,#7a5cff,#ff3b9a,#ff3b3b);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nfxs 4s linear infinite}
+.nfx-gold{background:linear-gradient(90deg,#8a6d12,#f5d77a,#fff3b0,#d4af37,#8a6d12);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nfxs 3s linear infinite}
+.nfx-legend{background:linear-gradient(90deg,#fff3b0,#d4af37,#fff,#ffb300,#fff3b0);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nfxs 2.4s linear infinite;filter:drop-shadow(0 0 8px rgba(255,200,60,.9))}
+@keyframes nfxs{to{background-position:200% 0}}
+.av.f-galaxy{border-color:#b388ff;box-shadow:0 0 0 2px #1a0b3b,0 0 14px #7b2ff7}
+.av.f-royal{border-color:#f5d77a;box-shadow:0 0 0 2px #41295a,0 0 14px #d4af37}
+.frame.f-galaxy::before{opacity:1;background:conic-gradient(#1a0b3b,#7b2ff7,#00e5ff,#ff00c8,#1a0b3b);box-shadow:0 0 22px #7b2ff7;animation:spin 5s linear infinite}
+.frame.f-royal::before{opacity:1;background:conic-gradient(#41295a,#f5d77a,#fff3b0,#d4af37,#41295a);box-shadow:0 0 20px #d4af37;animation:spin 5s linear infinite}
+.elite-chip{display:inline-block;margin-inline-start:6px;background:linear-gradient(135deg,#f5d77a,#d4af37);color:#1a1400;font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:999px}
+
+/* ===== لایه‌های تمام‌صفحه (فروشگاه / بازی) ===== */
+.ov{position:fixed;inset:0;z-index:70;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.ov-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.ov-h b{flex:1;font-size:1.05rem}
+.coin{background:var(--me);border:1px solid var(--gold-d);border-radius:999px;padding:3px 12px;font-weight:800;font-size:.9rem}
+.ov-b{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.ov-f{display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel)}
+.ov-f .btn{flex:1}
+.vipcard{border:1px solid #2fd18b;background:rgba(47,209,139,.10);border-radius:16px;padding:12px 14px}
+.vipcard b{display:block;font-size:1rem}.vipcard small{color:var(--mut)}
+.vipcard.off{border-color:var(--gold-d);background:rgba(var(--glow),.07)}
+.stabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;flex:none}
+.stabs button{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-weight:700;font-size:.88rem}
+.stabs button.on{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--on);border-color:transparent}
+.shop-prev{zoom:.7;border-radius:22px;overflow:hidden;flex:none}
+.shop-prev .pf-top{padding:30px 16px 30px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sit{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-height:104px;justify-content:center}
+.sit.sel{border-color:var(--gold);box-shadow:0 0 0 2px rgba(var(--glow),.25)}
+.sit .pv{height:50px;display:grid;place-items:center;width:100%}
+.sit .pv .bn{width:100%;height:42px;border-radius:10px}
+.sit .pv .av{width:44px;height:44px}
+.sit small{color:var(--mut);font-size:.78rem}
+.sit .tag{font-size:.78rem;font-weight:800;color:var(--gold)}
+.perk{display:flex;gap:8px;color:var(--mut);font-size:.88rem;line-height:1.8}
+.hint{color:var(--mut);font-size:.82rem;line-height:1.8;text-align:center}
+
+/* قاب و نام بیشتر */
+.nfx-ice{background:linear-gradient(180deg,#fff,#7fd6ff 60%,#2196f3);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 6px #4fc3f7)}
+.nfx-love{color:#fff;text-shadow:0 0 5px #ff80ab,0 0 14px #ff4081,0 0 26px #f50057}
+.av.f-toxic{border-color:#b6ff3b;box-shadow:0 0 0 2px #1b5e20,0 0 14px #76ff03}
+.av.f-sakura{border-color:#ffb7d5;box-shadow:0 0 0 2px #ad1457,0 0 12px #ff80ab}
+.av.f-diamond{border-color:#e0f7ff;box-shadow:0 0 0 2px #00bcd4,0 0 16px #80deea,0 0 28px #fff}
+.frame.f-toxic::before{opacity:1;background:conic-gradient(#b6ff3b,#1b5e20,#76ff03,#00e676,#b6ff3b);box-shadow:0 0 20px #76ff03;animation:spin 3s linear infinite}
+.frame.f-sakura::before{opacity:1;background:conic-gradient(#ffb7d5,#ff4081,#fff,#ff80ab,#ffb7d5);box-shadow:0 0 18px #ff80ab;animation:spin 6s linear infinite}
+.frame.f-diamond::before{opacity:1;background:conic-gradient(#fff,#4dd0e1,#e0f7ff,#00bcd4,#fff);box-shadow:0 0 24px #80deea;animation:spin 4s linear infinite}
+
+/* افکت‌های ذرات روی پروفایل */
+.pf-top>.fx{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.fx i{position:absolute;left:var(--x);top:-10%;display:block;font-style:normal}
+.fx-rain i{width:1.5px;height:calc(16px*var(--s));background:linear-gradient(transparent,rgba(200,230,255,.95));animation:fxfall calc(var(--t)*.45) linear var(--d) infinite}
+.fx-storm i{width:1.5px;height:calc(18px*var(--s));background:linear-gradient(transparent,rgba(190,215,255,.95));animation:fxfall calc(var(--t)*.38) linear var(--d) infinite}
+.fx-storm b{position:absolute;inset:0;background:#fff;opacity:0;animation:fxflash 5s infinite}
+.fx-snow i{width:calc(var(--s)*6px);height:calc(var(--s)*6px);border-radius:50%;background:#fff;box-shadow:0 0 6px #fff;animation:fxfall calc(var(--t)*3.2) linear var(--d) infinite,fxsway 3s ease-in-out var(--d) infinite alternate}
+.fx-stars i{top:var(--y);width:calc(var(--s)*5px);height:calc(var(--s)*5px);background:#fff;border-radius:50%;box-shadow:0 0 8px 2px #fff;animation:fxtw calc(var(--t)*1.3) ease-in-out var(--d) infinite alternate}
+.fx-hearts i{top:auto;bottom:-12%;animation:fxrise calc(var(--t)*3) ease-in var(--d) infinite;font-size:calc(var(--s)*20px)}
+.fx-hearts i::before{content:'💖'}
+.fx-petals i{font-size:calc(var(--s)*20px);animation:fxfall calc(var(--t)*3.4) linear var(--d) infinite,fxspin 4s linear var(--d) infinite}
+.fx-petals i::before{content:'🌸'}
+.fx-bubbles i{top:auto;bottom:-12%;width:calc(var(--s)*16px);height:calc(var(--s)*16px);border-radius:50%;border:1.5px solid rgba(255,255,255,.8);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08));animation:fxrise calc(var(--t)*3) ease-in var(--d) infinite}
+.fx-confetti i{width:calc(var(--s)*7px);height:calc(var(--s)*12px);animation:fxfall calc(var(--t)*2.2) linear var(--d) infinite,fxspin 1.6s linear var(--d) infinite}
+.fx-confetti i:nth-child(5n+1){background:#ff3b3b}.fx-confetti i:nth-child(5n+2){background:#ffd400}.fx-confetti i:nth-child(5n+3){background:#2bd96b}.fx-confetti i:nth-child(5n+4){background:#00c2ff}.fx-confetti i:nth-child(5n){background:#ff3b9a}
+.fx-embers i{top:auto;bottom:-8%;width:calc(var(--s)*5px);height:calc(var(--s)*5px);border-radius:50%;background:#ffb300;box-shadow:0 0 8px 2px #ff6d00;animation:fxrise calc(var(--t)*2) ease-out var(--d) infinite}
+.fx-gold i{top:var(--y);width:calc(var(--s)*4px);height:calc(var(--s)*4px);border-radius:50%;background:#ffe27a;box-shadow:0 0 8px 2px #d4af37;animation:fxtw calc(var(--t)*1.2) ease-in-out var(--d) infinite alternate,fxdrift 5s ease-in-out var(--d) infinite alternate}
+@keyframes fxfall{from{top:-12%}to{top:108%}}
+@keyframes fxrise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-330px);opacity:0}}
+@keyframes fxsway{from{margin-left:-14px}to{margin-left:14px}}
+@keyframes fxdrift{from{transform:translate(-10px,6px)}to{transform:translate(10px,-8px)}}
+@keyframes fxtw{from{opacity:.1;transform:scale(.6)}to{opacity:1;transform:scale(1.1)}}
+@keyframes fxspin{to{transform:rotate(360deg)}}
+@keyframes fxflash{0%,91%,95%,100%{opacity:0}92%{opacity:.6}93%{opacity:.05}94%{opacity:.4}}
+
+/* دکمه آنلاین‌ها + پنجره از پایین */
+.onbtn{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--gold-d);background:var(--panel2);flex:none}
+.onbtn .dot{width:9px;height:9px}
+.modal.sheetm{place-items:end center;padding:0}
+.modal.sheetm .card{width:min(520px,100%);max-height:92vh;border-radius:26px 26px 0 0;border-bottom:0;animation:sheetup .28s ease-out;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+.modal.sheetm .card.pf-card{padding-bottom:0}
+@keyframes sheetup{from{transform:translateY(100%)}to{transform:none}}
+
+/* ===== فروشگاه جدید (سبک گیفت‌شاپ) ===== */
+#shop{--txt:#fff;--mut:#b9b0e0;--panel:#241552;--panel2:#2f1d6b;--line:#4a3590;--gold:#ffc533;--gold2:#ffe08a;--gold-d:#b8860b;--on:#2a1a00;--me:#3b2a82;--glow:255,197,51;color:#fff;
+  background:linear-gradient(180deg,#2d1b69 0%,#1c1146 55%,#140c33 100%)}
+#shop::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 38px),repeating-linear-gradient(-45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 38px)}
+#shop>*{position:relative}
+.sh-hud{margin:10px 12px 4px;border:2px solid #5a3fc0;border-radius:22px;background:linear-gradient(180deg,#2a1a63,#1d1248);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.sh-ttl{display:flex;align-items:center;gap:10px}
+.sh-ttl b{font-size:1.35rem}
+.lvl-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:2px 12px;font-size:.78rem;font-weight:700}
+.sh-r{display:flex;align-items:center;gap:8px}
+.pill{display:flex;align-items:center;gap:6px;border-radius:14px;padding:6px 10px;font-weight:800;font-size:.9rem;border:2px solid}
+.pill.elite{background:#1b2a63;border-color:#3a86ff}
+.pill.coinp{background:#2e1c00;border-color:#d99a00}
+.pill.coinp em{font-style:normal;background:#27ae60;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:1rem;cursor:pointer}
+.sh-x{width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.1);font-size:1rem}
+.coin-ic{display:inline-block;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffc533 45%,#b8860b);border:2px solid #ffdf70;flex:none}
+.sh-seg{display:flex;gap:6px;background:rgba(0,0,0,.28);border-radius:18px;padding:5px;margin:8px 12px 0}
+.sh-seg button{flex:1;padding:10px 4px;border-radius:14px;font-weight:800;font-size:.9rem;color:#cfc6ff}
+.sh-seg button.on{background:linear-gradient(180deg,#ffc533,#f59f0b);color:#2a1a00;box-shadow:0 4px 0 #b36b00}
+.sh-search{margin:0;background:rgba(0,0,0,.25);border:2px solid #4a3590;border-radius:16px;padding:12px 14px;color:#fff;width:100%}
+.sh-search::placeholder{color:#a79bd8}
+.sh-chips{display:flex;gap:8px;overflow-x:auto;flex:none}
+.sh-chips button{flex:none;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);font-weight:700;font-size:.85rem}
+.sh-chips button.on{background:#7a4dff;border-color:#b79bff}
+.sg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gc{--rb:rgba(154,166,199,.5);--rc:#9aa6c7;position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 12px;border-radius:24px;border:3px solid var(--rb);background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03));box-shadow:0 8px 0 rgba(0,0,0,.22);text-align:center;color:#fff}
+.gc.rare{--rb:rgba(77,163,255,.7);--rc:#4da3ff}
+.gc.epic{--rb:rgba(180,108,255,.8);--rc:#b46cff}
+.gc.legend{--rb:rgba(255,197,51,.85);--rc:#ffc533}
+.gc.sel{box-shadow:0 0 0 3px #fff,0 0 22px var(--rc)}
+.gc:active{transform:scale(.97)}
+.gcode{position:absolute;top:10px;inset-inline-end:10px;background:rgba(0,0,0,.35);border-radius:10px;padding:2px 9px;font-size:.7rem;font-weight:700;color:#d9d2ff}
+.gart{position:relative;width:100%;height:118px;display:grid;place-items:center;margin-top:8px}
+.gart .glow{position:absolute;width:104px;height:104px;border-radius:50%;background:radial-gradient(circle,var(--rc),transparent 68%);opacity:.38}
+.gart .emo{position:relative;font-size:64px;line-height:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
+.gart .av{position:relative;width:60px;height:60px;font-size:1.6rem}
+.gart .bn{position:relative;width:86%;height:62px;border-radius:14px;border:2px solid rgba(255,255,255,.35)}
+.gart .nm{position:relative;font-size:1.25rem}
+.gc.epic .gart::before,.gc.legend .gart::before,.gc.epic .gart::after,.gc.legend .gart::after{content:'✦';position:absolute;color:#ffe08a;font-size:1.3rem;animation:fxtw 1.3s ease-in-out infinite alternate}
+.gc.epic .gart::before,.gc.legend .gart::before{top:4px;inset-inline-start:16%}
+.gc.epic .gart::after,.gc.legend .gart::after{bottom:10px;inset-inline-end:14%;animation-delay:-.6s;font-size:1rem}
+.gname{font-size:.95rem;line-height:1.4;min-height:1.4em}
+.grar{font-weight:800;font-size:.88rem;color:var(--rc);margin-top:6px}
+.gprice{display:flex;align-items:center;justify-content:center;gap:6px;min-width:70%;padding:7px 14px;border-radius:999px;background:linear-gradient(180deg,#ffc533,#f59f0b);color:#2a1a00;font-weight:900;font-size:1.02rem;box-shadow:0 4px 0 #b36b00;margin-top:2px}
+.gprice.own{background:linear-gradient(180deg,#3ddc84,#1fa85a);color:#04210f;box-shadow:0 4px 0 #0f6b36}
+.gprice.lock{background:linear-gradient(180deg,#8a63ff,#5b34d6);color:#fff;box-shadow:0 4px 0 #35198f}
+.grial{color:#a79bd8;font-size:.78rem}
+.sh-sheet{position:absolute!important;inset:0;z-index:5;background:rgba(8,4,24,.72);display:flex;align-items:flex-end;justify-content:center}
+.sh-card{width:min(520px,100%);background:linear-gradient(180deg,#2e1c6e,#1c1146);border:3px solid var(--rb,#5a3fc0);border-bottom:0;border-radius:28px 28px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));text-align:center;display:flex;flex-direction:column;gap:8px;animation:sheetup .25s ease-out}
+.sh-card .gart{height:150px}.sh-card .gart .emo{font-size:96px}.sh-card .gart .glow{width:150px;height:150px}
+.sh-card h3{font-size:1.2rem}
+.sh-card .btn{margin-top:4px}
+.sh-card .btn.sell{background:transparent;border:1px solid #ff7a7a;color:#ff9a9a}
+.shop-prev{zoom:.6}
+.gifts-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.gmini{--rb:rgba(154,166,199,.5);width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;background:var(--panel2);border:2px solid var(--rb)}
+.gmini.rare{--rb:#4da3ff}.gmini.epic{--rb:#b46cff}.gmini.legend{--rb:#ffc533;box-shadow:0 0 10px rgba(255,197,51,.5)}
+</style>
+</head>
+<body>
+
+<div id="net" class="hidden">اتصال به سرور برقرار نیست. اگر VPN ندارید روشنش کنید.</div>
+
+<!-- ورود / ثبت نام -->
+<div id="auth">
+  <div class="auth-card">
+    <div class="logo gold-text">پرو چت</div>
+    <p class="sub">گفتگوی عمومی، خصوصی و گروهی</p>
+    <div class="tabs"><button id="tabLogin" class="on">ورود</button><button id="tabReg">ثبت نام</button></div>
+    <div class="field hidden" id="fName"><label>نام نمایشی</label><input id="inName" maxlength="24" autocomplete="nickname"></div>
+    <div class="field"><label>آیدی (انگلیسی، بدون فاصله)</label><input id="inId" dir="ltr" maxlength="20" autocomplete="username" placeholder="mohammad_12"></div>
+    <div class="field"><label>رمز عبور (حداقل ۶ کاراکتر)</label><input id="inPass" type="password" dir="ltr" autocomplete="current-password"></div>
+    <div class="err" id="authErr"></div>
+    <button class="btn" id="authBtn">ورود</button>
+  </div>
+</div>
+
+<!-- برنامه -->
+<div id="app" class="hidden">
+  <aside id="side">
+    <div class="me-bar">
+      <div class="av" id="meAv" style="cursor:pointer"></div>
+      <div class="nm"><b id="meName"></b><small id="meId"></small></div>
+      <button class="icon" id="btnShop" title="فروشگاه" aria-label="فروشگاه">🛍</button>
+      <button class="icon" id="btnSettings" title="تنظیمات" aria-label="تنظیمات">⚙</button>
+      <button class="icon" id="btnLogout" title="خروج" aria-label="خروج">⏻</button>
+    </div>
+    <div class="searchbox">
+      <input id="userSearch" placeholder="جستجوی گفتگو یا کاربر">
+      <button class="icon" id="btnNewGroup" title="گروه جدید" aria-label="گروه جدید">👥</button>
+    </div>
+    <div id="list"></div>
+  </aside>
+
+  <section id="main">
+    <div class="head">
+      <button class="icon" id="back" aria-label="بازگشت">➜</button>
+      <div class="av sm" id="hAv"></div>
+      <div class="t clickable" id="hInfo"><b id="hTitle"></b><small id="hSub"></small></div>
+      <button class="onbtn hidden" id="btnOnline" aria-label="کاربران آنلاین"><span class="dot on"></span><span id="onN">۰</span> آنلاین</button>
+      <button class="icon" id="btnSearch" title="جستجو در پیام‌ها" aria-label="جستجو در پیام‌ها">⌕</button>
+    </div>
+    <div class="searchbox hidden" id="msgSearchWrap"><input id="msgSearch" placeholder="جستجو در همین گفتگو…"></div>
+    <div id="pinbar" class="hidden"><span>📌</span><span id="pinTxt"></span><button class="icon" id="unpin" aria-label="برداشتن سنجاق">✕</button></div>
+    <div id="msgs"></div>
+    <button id="toBottom" class="icon hidden" aria-label="رفتن به آخرین پیام">⬇</button>
+    <div id="dmGate" class="hidden"></div>
+    <div id="composer">
+      <div id="ctx" class="hidden"><span id="ctxTxt"></span><button class="icon" id="ctxX" aria-label="لغو">✕</button></div>
+      <div id="emojiPanel" class="hidden"></div>
+      <div class="bar">
+        <button class="icon" id="btnEmoji" title="ایموجی" aria-label="ایموجی">😊</button>
+        <button class="icon" id="btnImg" title="ارسال عکس" aria-label="ارسال عکس">🖼</button>
+        <button class="icon" id="btnMic" title="پیام صوتی" aria-label="پیام صوتی">🎤</button>
+        <textarea id="inMsg" rows="1" placeholder="پیام بنویسید…"></textarea>
+        <button class="send" id="btnSend" aria-label="ارسال">➤</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="shop" class="ov hidden"></div>
+
+<input type="file" id="fileImg" accept="image/*" class="hidden">
+<input type="file" id="fileAvatar" accept="image/*" class="hidden">
+<div id="modal" class="modal hidden"><div class="card" id="modalCard"></div></div>
+<div id="lightbox" class="modal hidden"><img alt=""></div>
+
+<script type="module">
+/* ============================================================
+   تنظیمات فایربیس
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBDrz8ozmhBvOMxFwqVBT848c4PU0H6ufg",
+  authDomain: "prochat-af754.firebaseapp.com",
+  projectId: "prochat-af754",
+  storageBucket: "prochat-af754.firebasestorage.app",
+  messagingSenderId: "643500044685",
+  appId: "1:643500044685:web:7bc292137d2c9a31db4dc4"
+};
+const ADMIN_ID = "admin";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, FieldPath, arrayUnion, arrayRemove,
+  doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, orderBy, limitToLast, onSnapshot,
+  serverTimestamp, runTransaction, deleteField, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const $ = id => document.getElementById(id);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+let db;
+try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true }); }
+catch { try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); } catch { db = getFirestore(app); } }
+
+let me = null, users = {}, rooms = {}, room = 'public', msgs = [];
+let replyTo = null, editing = null, filter = '';
+let unsubMsgs = null, unsubUsers = null, unsubRooms = null, unsubPublic = null, beat = null, hdrT = null, netT = null;
+let usersSig = '', typingSent = 0;
+const prevLast = {}, drafts = {};
+let soundOn = localStorage.getItem('snd') !== '0';
+const setTheme = t => { document.documentElement.dataset.theme = t; localStorage.setItem('theme', t); };
+setTheme(localStorage.getItem('theme') || 'gold');
+
+/* ---------- کمک‌ها ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const linkify = s => esc(s).replace(/(https?:\/\/[^\s<]+)/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const toast = t => { const d = document.createElement('div'); d.id = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); };
+const net = show => $('net').classList.toggle('hidden', !show);
+window.addEventListener('offline', () => net(true));
+window.addEventListener('online', () => net(false));
+const hhmm = ms => fa(new Date(ms).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }));
+const avatarHtml = u => u?.photo ? `<img src="${u.photo}" alt="">` : esc((u?.name || '?').trim().charAt(0));
+const isOnline = u => u?.lastSeen?.toMillis && Date.now() - u.lastSeen.toMillis() < 70000;
+function lastSeenText(u) {
+  if (!u) return '';
+  if (isOnline(u)) return 'آنلاین';
+  const t = u.lastSeen?.toMillis?.(); if (!t) return 'آفلاین';
+  const m = Math.floor((Date.now() - t) / 60000);
+  if (m < 60) return `آخرین بازدید ${fa(Math.max(1, m))} دقیقه پیش`;
+  if (m < 1440) return `آخرین بازدید ${fa(Math.floor(m / 60))} ساعت پیش`;
+  return `آخرین بازدید ${fa(Math.floor(m / 1440))} روز پیش`;
+}
+const isAdmin = () => me && me.handle === ADMIN_ID;
+const dmId = (a, b) => 'dm_' + [a, b].sort().join('_');
+const roomType = id => id === 'public' ? 'public' : id.startsWith('saved_') ? 'saved' : id.startsWith('dm_') ? 'dm' : 'group';
+const dmPeerId = id => id.split('_').slice(1).find(x => x !== me.uid);
+const membersOf = id => { const t = roomType(id); return t === 'dm' ? id.split('_').slice(1) : t === 'saved' ? [id.slice(6)] : null; };
+const savedId = () => 'saved_' + me.uid;
+const onlineCount = () => Object.values(users).filter(isOnline).length;
+
+const BANNERS = { sunset: ['#ff7e5f', '#b24592'], ocean: ['#2193b0', '#6dd5ed'], emerald: ['#11998e', '#38ef7d'], raspberry: ['#8e3a59', '#d9739a'], night: ['#232526', '#556270'], gold: ['#b8860b', '#f5d77a'], violet: ['#6a11cb', '#e100ff'], fire: ['#f12711', '#f5af19'], aurora: ['#0f2027', '#2c9f8f'], galaxy: ['#1a0b3b', '#7b2ff7'], royal: ['#41295a', '#d4af37'], sakura: ['#ff9a9e', '#fad0c4'], mint: ['#0ba360', '#3cba92'], midnight: ['#141e30', '#243b55'], sand: ['#c79081', '#dfa579'] };
+const FRAMES = { none: 'بدون', gold: 'طلایی', neon: 'نئون', rainbow: 'رنگین‌کمان', fire: 'آتش', ice: 'یخی', galaxy: 'کهکشان', royal: 'سلطنتی', toxic: 'سمی', sakura: 'شکوفه', diamond: 'الماس' };
+const frameCls = u => u?.frame && u.frame !== 'none' ? 'f-' + u.frame : '';
+const AUTO_B = ['sunset', 'ocean', 'emerald', 'raspberry', 'night', 'gold', 'violet', 'fire'];
+const autoBanner = uid => AUTO_B[[...String(uid)].reduce((a, c) => a + c.charCodeAt(0), 0) % AUTO_B.length];
+const joinedDays = u => { const t = u?.createdAt?.toMillis?.(); return t ? Math.max(0, Math.floor((Date.now() - t) / 864e5)) : 0; };
+const pointsOf = u => (u?.msgCount || 0) * 3 + joinedDays(u) * 5;
+const levelOf = p => 1 + Math.floor(p / 100);
+const titleOf = u => u.title || (lv => lv >= 15 ? 'فرعون 👑' : lv >= 10 ? 'افسانه‌ای' : lv >= 6 ? 'حرفه‌ای' : lv >= 3 ? 'فعال' : 'تازه‌وارد')(levelOf(pointsOf(u)));
+
+/* وضعیت چت خصوصی: none | wait | incoming | declined | declinedByMe | ok */
+function dmState(id) {
+  const r = rooms[id]; if (!r) return 'none';
+  const st = r.status || 'accepted';
+  if (st === 'accepted') return 'ok';
+  if (st === 'pending') return r.requester === me.uid ? 'wait' : 'incoming';
+  if (st === 'declined') return r.requester === me.uid ? 'declined' : 'declinedByMe';
+  return 'ok';
+}
+async function sendRequest(note) {
+  const pid = dmPeerId(room);
+  try {
+    await setDoc(doc(db, 'rooms', room), { type: 'dm', members: [me.uid, pid], status: 'pending', requester: me.uid, note: (note || '').trim().slice(0, 100), requestedAt: Date.now() });
+    toast('درخواست ارسال شد');
+  } catch { toast('ارسال نشد. قوانین Firestore را بررسی کنید.'); }
+}
+const respond = (id, ok) => updateDoc(doc(db, 'rooms', id), { status: ok ? 'accepted' : 'declined' }).catch(() => toast('انجام نشد'));
+
+let gateKey = '';
+function renderGate() {
+  if (!me) return;
+  const g = $('dmGate'), st = roomType(room) === 'dm' ? dmState(room) : 'ok';
+  g.classList.toggle('hidden', st === 'ok'); $('composer').classList.toggle('hidden', st !== 'ok');
+  if (st === 'ok') { gateKey = ''; return; }
+  const r = rooms[room] || {}, key = room + st + (r.note || '') + (users[dmPeerId(room)]?.name || '');
+  if (key === gateKey) return; gateKey = key;
+  const nm = esc(users[dmPeerId(room)]?.name || 'کاربر');
+  const note = r.note ? `<div class="gnote">«${esc(r.note)}»</div>` : '';
+  const map = {
+    none: `<div class="gico">💌</div><b>چت خصوصی با ${nm}</b><p>برای شروع باید درخواست بفرستی تا او بپذیرد.</p><input id="gNote" maxlength="100" placeholder="پیام معرفی (اختیاری)"><button class="btn" id="gSend">ارسال درخواست</button>`,
+    wait: `<div class="gico">⏳</div><b>منتظر پذیرش ${nm}</b><p>درخواست شما ارسال شد.</p>${note}`,
+    incoming: `<div class="gico">🔔</div><b>${nm} می‌خواهد با تو چت خصوصی کند</b>${note}<div class="gbtns"><button class="btn" id="gAcc">قبول</button><button class="btn danger" id="gDec">رد</button></div>`,
+    declined: `<div class="gico">🚫</div><b>درخواست شما پذیرفته نشد</b>`,
+    declinedByMe: `<div class="gico">🚫</div><b>این درخواست را رد کردی</b><button class="btn ghost" id="gAcc">پذیرفتن</button>`
+  };
+  g.innerHTML = map[st];
+  $('gSend')?.addEventListener('click', () => sendRequest($('gNote').value));
+  $('gAcc')?.addEventListener('click', () => respond(room, true));
+  $('gDec')?.addEventListener('click', () => respond(room, false));
+}
+function reqRow(id) {
+  const r = rooms[id], u = users[r.requester];
+  return `<div class="row req ${room === id ? 'on' : ''}" data-room="${id}" role="button" tabindex="0">
+    <div class="av ${frameCls(u)}">${avatarHtml(u)}</div><div class="nm"><b>${esc(u?.name || 'کاربر')}</b><small>${esc(r.note || 'درخواست چت خصوصی')}</small></div>
+    <div class="reqbtns"><button class="icon ok" data-acc="${id}" aria-label="قبول">✓</button><button class="icon no" data-dec="${id}" aria-label="رد">✕</button></div></div>`;
+}
+
+
+function shrinkImage(file, max, q = .78) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = rej; img.src = url;
+  });
+}
+
+/* ---------- ورود و ثبت نام ---------- */
+let mode = 'login';
+function setMode(m) {
+  mode = m;
+  $('tabLogin').classList.toggle('on', m === 'login'); $('tabReg').classList.toggle('on', m === 'reg');
+  $('fName').classList.toggle('hidden', m === 'login'); $('authBtn').textContent = m === 'login' ? 'ورود' : 'ساخت حساب';
+  $('authErr').textContent = '';
+}
+$('tabLogin').onclick = () => setMode('login'); $('tabReg').onclick = () => setMode('reg');
+const emailOf = h => `${h}@prochat.app`;
+const authMsg = c => ({
+  'auth/email-already-in-use': 'این آیدی قبلا گرفته شده است.',
+  'auth/invalid-credential': 'آیدی یا رمز عبور اشتباه است.',
+  'auth/weak-password': 'رمز عبور باید حداقل ۶ کاراکتر باشد.',
+  'auth/network-request-failed': 'به فایربیس وصل نمی‌شود. اگر VPN ندارید روشنش کنید.',
+  'auth/operation-not-allowed': 'در Firebase روش Email/Password را فعال کنید.',
+  'auth/too-many-requests': 'تلاش زیاد. چند دقیقه بعد دوباره امتحان کنید.'
+}[c] || 'خطا: ' + c);
+
+$('authBtn').onclick = async () => {
+  const handle = $('inId').value.trim().toLowerCase(), pass = $('inPass').value, name = $('inName').value.trim();
+  $('authErr').textContent = '';
+  if (!/^[a-z0-9_]{3,20}$/.test(handle)) return $('authErr').textContent = 'آیدی باید ۳ تا ۲۰ حرف انگلیسی، عدد یا _ باشد.';
+  if (mode === 'reg' && !name) return $('authErr').textContent = 'نام نمایشی را وارد کنید.';
+  $('authBtn').disabled = true;
+  try {
+    if (mode === 'reg') {
+      const cred = await createUserWithEmailAndPassword(auth, emailOf(handle), pass);
+      await runTransaction(db, async tx => {
+        const hRef = doc(db, 'handles', handle);
+        if ((await tx.get(hRef)).exists()) throw { code: 'auth/email-already-in-use' };
+        tx.set(hRef, { uid: cred.user.uid });
+        tx.set(doc(db, 'users', cred.user.uid), { uid: cred.user.uid, name, handle, photo: '', bio: '', banned: false, lastSeen: serverTimestamp(), createdAt: serverTimestamp() });
+      });
+    } else await signInWithEmailAndPassword(auth, emailOf(handle), pass);
+  } catch (e) { $('authErr').textContent = authMsg(e.code); }
+  $('authBtn').disabled = false;
+};
+[$('inId'), $('inPass'), $('inName')].forEach(i => i.addEventListener('keydown', e => e.key === 'Enter' && $('authBtn').click()));
+
+onAuthStateChanged(auth, async u => {
+  if (!u) { stopAll(); $('app').classList.add('hidden'); $('auth').classList.remove('hidden'); return; }
+  let snap;
+  try {
+    snap = await getDoc(doc(db, 'users', u.uid));
+    for (let i = 0; !snap.exists() && i < 5; i++) { await new Promise(r => setTimeout(r, 400)); snap = await getDoc(doc(db, 'users', u.uid)); }
+  } catch { net(true); return; }
+  if (!snap.exists()) return;
+  me = snap.data();
+  if (me.banned) { await signOut(auth); return alert('حساب شما مسدود شده است.'); }
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
+  paintMe(); startPresence(); listenAll(); openRoom('public');
+});
+function stopAll() { unsubMsgs?.(); unsubUsers?.(); unsubRooms?.(); unsubPublic?.(); clearInterval(beat); clearInterval(hdrT); me = null; users = {}; rooms = {}; }
+$('btnLogout').onclick = () => signOut(auth);
+function paintMe() { $('meAv').innerHTML = avatarHtml(me); $('meAv').className = 'av ' + frameCls(me); $('meName').innerHTML = nameHtml(me) + (isVip(me) ? ' 👑' : ''); $('meId').textContent = '@' + me.handle + ' · 🪙 ' + fa(me.coins || 0); onMeChanged(); }
+
+function startPresence() {
+  const ping = () => me && updateDoc(doc(db, 'users', me.uid), { lastSeen: serverTimestamp() }).catch(() => {});
+  ping(); clearInterval(beat); beat = setInterval(ping, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { ping(); markRead(); } });
+}
+
+/* ---------- گوش دادن به داده‌ها ---------- */
+function listenAll() {
+  unsubUsers = onSnapshot(collection(db, 'users'), s => {
+    clearTimeout(netT);
+    if (s.metadata.fromCache) netT = setTimeout(() => net(true), 8000); else net(false);
+    users = {}; s.forEach(d => users[d.id] = d.data());
+    if (users[me.uid]) { me = users[me.uid]; if (me.banned) signOut(auth); paintMe(); }
+    renderList(); renderHeader();
+    const sig = Object.values(users).map(u => u.uid + u.name + (u.photo || '').length + (u.frame || '') + (u.nameFx || '') + (u.vipUntil || 0) + (u.msgCount || 0)).join('|');
+    if (sig !== usersSig) { usersSig = sig; renderMsgs(); }
+  }, () => net(true));
+
+  let firstR = true;
+  unsubRooms = onSnapshot(query(collection(db, 'rooms'), where('members', 'array-contains', me.uid)), s => {
+    s.docChanges().forEach(c => { if (c.type === 'removed') delete rooms[c.doc.id]; else roomUpdated(c.doc.id, c.doc.data(), firstR); });
+    firstR = false; renderList(); renderHeader(); renderPin();
+  }, () => net(true));
+
+  let firstP = true;
+  unsubPublic = onSnapshot(doc(db, 'rooms', 'public'), s => {
+    if (s.exists()) roomUpdated('public', s.data(), firstP);
+    firstP = false; renderList(); renderHeader(); renderPin();
+  });
+  clearInterval(hdrT); hdrT = setInterval(() => { renderList(); renderHeader(); }, 2000);
+}
+
+function roomUpdated(id, data, first) {
+  const was = rooms[id]; rooms[id] = data;
+  if (data.status === 'pending' && data.requester !== me.uid && !first && was?.status !== 'pending') { beep(); toast(`${users[data.requester]?.name || 'کسی'} درخواست چت خصوصی داد 🔔`); }
+  if (was?.status === 'pending' && data.status === 'accepted' && data.requester === me.uid) toast('درخواست چت شما پذیرفته شد 🎉');
+  const l = data.last;
+  if (l && !first && l.t > (prevLast[id] || 0) && l.uid !== me.uid && !(id === room && !document.hidden)) {
+    beep();
+    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+      try { new Notification(l.name || 'پیام جدید', { body: l.text }); } catch {}
+    } else if (id !== room) toast(`${l.name}: ${l.text}`);
+  }
+  if (l) prevLast[id] = Math.max(prevLast[id] || 0, l.t);
+  if (id === room) markRead();
+}
+function markRead() {
+  if (!me || document.hidden) return;
+  const r = rooms[room], l = r?.last;
+  if (l && l.uid !== me.uid && l.t > (r.read?.[me.uid] || 0))
+    setDoc(doc(db, 'rooms', room), { read: { [me.uid]: Date.now() } }, { merge: true }).catch(() => {});
+}
+
+/* ---------- اطلاعات گفتگو ---------- */
+function typers(id) {
+  const t = rooms[id]?.typing || {};
+  const n = Object.entries(t).filter(([k, v]) => k !== me.uid && Date.now() - v < 4500).map(([k]) => users[k]?.name).filter(Boolean);
+  return n.length ? n.slice(0, 2).join('، ') + ' در حال نوشتن…' : '';
+}
+function info(id) {
+  const t = roomType(id), r = rooms[id] || {};
+  if (t === 'public') return { title: 'گروه عمومی', av: '★', sub: fa(onlineCount()) + ' نفر آنلاین' };
+  if (t === 'saved') return { title: 'پیام‌های ذخیره‌شده', av: '🔖', sub: 'فقط برای شما' };
+  if (t === 'dm') { const u = users[dmPeerId(id)]; return { title: u?.name || 'کاربر', av: u ? avatarHtml(u) : '?', sub: lastSeenText(u), user: u }; }
+  return { title: r.name || 'گروه', av: esc(r.emoji || '👥'), sub: fa((r.members || []).length) + ' عضو', group: true };
+}
+
+/* ---------- لیست کناری ---------- */
+$('userSearch').oninput = renderList;
+function chatRow(id) {
+  const i = info(id), r = rooms[id] || {}, l = r.last;
+  const unread = l && l.uid !== me.uid && l.t > (r.read?.[me.uid] || 0) && !(id === room && !document.hidden);
+  const ty = typers(id);
+  const st0 = roomType(id) === 'dm' ? dmState(id) : 'ok';
+  let prev = ty ? `<small class="typing">${esc(ty)}</small>` : `<small>${l ? esc((l.uid === me.uid ? 'شما: ' : roomType(id) === 'dm' ? '' : l.name + ': ') + l.text) : (roomType(id) === 'public' ? 'گفتگوی همه' : 'هنوز پیامی نیست')}</small>`;
+  if (st0 === 'wait') prev = '<small>⏳ در انتظار پذیرش…</small>';
+  return `<button class="row ${room === id ? 'on' : ''}" data-room="${id}">
+    <div class="av ${frameCls(i.user)}">${i.av}</div><div class="nm"><b>${esc(i.title)}</b>${prev}</div>
+    <div class="rt">${l ? `<small>${hhmm(l.t)}</small>` : ''}${unread ? '<span class="badge">●</span>' : ''}</div></button>`;
+}
+function renderList() {
+  if (!me) return;
+  const q = $('userSearch').value.trim().toLowerCase();
+  const ids = Object.keys(rooms).filter(id => id !== 'public' && roomType(id) !== 'saved' && (roomType(id) === 'group' || ['ok', 'wait'].includes(dmState(id))))
+    .sort((a, b) => (rooms[b].last?.t || 0) - (rooms[a].last?.t || 0));
+  const match = id => !q || info(id).title.toLowerCase().includes(q);
+  let h = '';
+  const reqs = Object.keys(rooms).filter(id => roomType(id) === 'dm' && dmState(id) === 'incoming');
+  if (reqs.length) h += '<div class="sec">درخواست‌های چت خصوصی</div>' + reqs.map(reqRow).join('');
+  if (!q || 'عمومی'.includes(q)) h += chatRow('public');
+  if (!q || 'ذخیره'.includes(q)) h += chatRow(savedId());
+  const chats = ids.filter(match);
+  if (chats.length) h += '<div class="sec">گفتگوها</div>' + chats.map(chatRow).join('');
+  const hasDm = new Set(ids.filter(i => roomType(i) === 'dm').map(dmPeerId));
+  const others = Object.values(users).filter(u => u.uid !== me.uid && (!q ? !hasDm.has(u.uid) : (u.name.toLowerCase().includes(q) || u.handle.includes(q))))
+    .sort((a, b) => (isOnline(b) - isOnline(a)) || a.name.localeCompare(b.name, 'fa'));
+  if (others.length) h += '<div class="sec">کاربران</div>' + others.map(u => `<button class="row ${room === dmId(me.uid, u.uid) ? 'on' : ''}" data-uid="${u.uid}">
+      <div class="av ${frameCls(u)}">${avatarHtml(u)}</div><div class="nm"><b>${esc(u.name)}</b><small>@${esc(u.handle)}</small></div>
+      <span class="dot ${isOnline(u) ? 'on' : ''}"></span></button>`).join('');
+  $('list').innerHTML = h;
+}
+$('list').onclick = e => {
+  const ac = e.target.closest('[data-acc]'); if (ac) { respond(ac.dataset.acc, true); return; }
+  const dc = e.target.closest('[data-dec]'); if (dc) { respond(dc.dataset.dec, false); return; }
+  const r = e.target.closest('.row'); if (!r) return;
+  openRoom(r.dataset.room || dmId(me.uid, r.dataset.uid));
+};
+
+/* ---------- باز کردن گفتگو ---------- */
+function openRoom(id) {
+  drafts[room] = $('inMsg').value;
+  room = id; msgs = []; cancelCtx(); filter = ''; $('msgSearch').value = '';
+  $('inMsg').value = drafts[id] || ''; $('emojiPanel').classList.add('hidden');
+  $('app').classList.add('chat');
+  unsubMsgs?.();
+  unsubMsgs = onSnapshot(query(collection(db, 'rooms', id, 'msgs'), orderBy('createdAt'), limitToLast(300)), s => {
+    const atBottom = $('msgs').scrollHeight - $('msgs').scrollTop - $('msgs').clientHeight < 120;
+    msgs = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderMsgs(atBottom);
+  }, e => toast('دسترسی به این گفتگو ممکن نیست'));
+  renderHeader(); renderList(); renderPin(); renderMsgs(true); markRead();
+}
+$('back').onclick = () => $('app').classList.remove('chat');
+
+function renderHeader() {
+  if (!me) return;
+  const i = info(room);
+  $('hAv').innerHTML = i.av; $('hTitle').textContent = i.title;
+  $('hSub').textContent = typers(room) || i.sub;
+  $('hSub').className = typers(room) ? 'typing' : '';
+  updateOnlineBtn(); renderGate();
+}
+$('hInfo').onclick = () => {
+  const i = info(room);
+  if (i.user) showProfile(i.user.uid); else if (i.group) showGroup(); else if (room === 'public') showOnline();
+};
+
+/* ---------- سنجاق ---------- */
+const canPin = () => room !== 'public' || isAdmin();
+function renderPin() {
+  const p = rooms[room]?.pinned;
+  $('pinbar').classList.toggle('hidden', !p);
+  if (p) $('pinTxt').textContent = p.text;
+  $('unpin').classList.toggle('hidden', !canPin());
+}
+$('pinbar').onclick = e => { if (e.target.closest('#unpin')) return; const p = rooms[room]?.pinned; if (p) jumpTo(p.id); };
+$('unpin').onclick = () => setDoc(doc(db, 'rooms', room), { pinned: deleteField() }, { merge: true });
+
+/* ---------- نمایش پیام‌ها ---------- */
+const BIG = /^[\p{Extended_Pictographic}\u200d\ufe0f\s]{1,12}$/u;
+function dayLabel(ms) {
+  const d = new Date(ms), t = new Date(), y = new Date(Date.now() - 864e5);
+  if (d.toDateString() === t.toDateString()) return 'امروز';
+  if (d.toDateString() === y.toDateString()) return 'دیروز';
+  return fa(d.toLocaleDateString('fa-IR', { month: 'long', day: 'numeric' }));
+}
+function renderMsgs(scroll) {
+  if (!me) return;
+  const f = filter.trim().toLowerCase(), keep = $('msgs').scrollTop;
+  const list = msgs.filter(m => !f || (m.text || '').toLowerCase().includes(f) || (m.name || '').toLowerCase().includes(f));
+  if (!list.length) { $('msgs').innerHTML = `<div class="empty">${f ? 'پیامی با این عبارت پیدا نشد' : 'هنوز پیامی نیست.<br>اولین پیام را بفرستید 👋'}</div>`; return; }
+  const type = roomType(room), peerRead = type === 'dm' ? (rooms[room]?.read?.[dmPeerId(room)] || 0) : 0;
+  let lastDay = '', h = '';
+  for (const m of list) {
+    const ms = m.createdAt?.toMillis?.() || Date.now();
+    const dl = dayLabel(ms); if (dl !== lastDay) { h += `<div class="day">${dl}</div>`; lastDay = dl; }
+    const mine = m.uid === me.uid, u = users[m.uid] || m, can = mine || isAdmin();
+    const big = !m.deleted && m.text && !m.img && !m.audio && !m.replyTo && !m.fwd && BIG.test(m.text);
+    const rx = m.deleted ? '' : Object.entries(m.reactions || {}).filter(([, a]) => a?.length).map(([e, a]) =>
+      `<button class="chip ${a.includes(me.uid) ? 'me' : ''}" data-r="${e}">${e} ${fa(a.length)}</button>`).join('');
+    let body;
+    if (m.deleted) body = `<div class="txt deleted">این پیام حذف شد</div>`;
+    else body = (m.fwd ? `<div class="fwd">↪ فوروارد از ${esc(m.fwd.name)}</div>` : '')
+      + (m.replyTo ? `<div class="quote" data-jump="${m.replyTo.id}"><b>${esc(m.replyTo.name)}</b>${esc(m.replyTo.text)}</div>` : '')
+      + (m.text ? `<div class="txt">${linkify(m.text)}</div>` : '')
+      + (m.img ? `<img class="pic" src="${m.img}" alt="تصویر ارسالی">` : '')
+      + (m.audio ? `<audio controls src="${m.audio}"></audio>` : '');
+    const tick = !mine || m.deleted ? '' : !m.createdAt ? '<span class="tick">🕓</span>'
+      : type === 'dm' ? `<span class="tick ${peerRead >= ms ? 'seen' : ''}">${peerRead >= ms ? '✓✓' : '✓'}</span>` : '<span class="tick">✓</span>';
+    const acts = m.deleted ? '' : `<div class="acts">
+      <button data-a="react" title="واکنش">😊</button><button data-a="reply" title="پاسخ">↩</button><button data-a="fwd" title="فوروارد">↪</button>
+      ${m.text ? '<button data-a="copy" title="کپی">⧉</button>' : ''}${canPin() ? '<button data-a="pin" title="سنجاق">📌</button>' : ''}
+      ${mine && m.text ? '<button data-a="edit" title="ویرایش">✎</button>' : ''}${can ? '<button data-a="del" title="حذف">🗑</button>' : ''}</div>`;
+    const showName = !mine && (type === 'public' || type === 'group');
+    h += `<div class="msg ${mine ? 'mine' : ''} ${big ? 'big' : ''}" id="m_${m.id}" data-id="${m.id}">
+      ${mine || type === 'dm' || type === 'saved' ? '' : `<div class="av sm ${frameCls(u)}" data-prof="${m.uid}" style="cursor:pointer">${avatarHtml(u)}</div>`}
+      <div class="bub">${acts}
+        ${showName ? `<div class="who" data-prof="${m.uid}">${nameHtml(u.name ? u : m)}<small>@${esc(u.handle || m.handle)}</small></div>` : ''}
+        ${body}${rx ? `<div class="rx">${rx}</div>` : ''}
+        <div class="meta">${m.edited && !m.deleted ? '<span>ویرایش‌شده</span>' : ''}<span>${hhmm(ms)}</span>${tick}</div>
+      </div></div>`;
+  }
+  $('msgs').innerHTML = h;
+  if (scroll) $('msgs').scrollTop = $('msgs').scrollHeight; else $('msgs').scrollTop = keep;
+}
+function jumpTo(id) {
+  const el = $('m_' + id); if (!el) return toast('پیام در ۳۰۰ پیام اخیر نیست');
+  el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300);
+}
+function previewOf(m) { return m.text || (m.img ? '🖼 تصویر' : m.audio ? '🎤 پیام صوتی' : ''); }
+
+$('msgs').onclick = e => {
+  const t = e.target;
+  const chip = t.closest('[data-r]');
+  if (chip) return toggleReact(t.closest('.msg').dataset.id, chip.dataset.r);
+  if (t.closest('[data-jump]')) return jumpTo(t.closest('[data-jump]').dataset.jump);
+  if (t.classList.contains('pic')) { $('lightbox').querySelector('img').src = t.src; return $('lightbox').classList.remove('hidden'); }
+  if (t.closest('a')) return;
+  const pr = t.closest('[data-prof]'); if (pr) return showProfile(pr.dataset.prof);
+  const a = t.closest('[data-a]'), box = t.closest('.msg');
+  if (!box) return;
+  if (!a) { document.querySelectorAll('.msg.sel').forEach(x => x !== box && x.classList.remove('sel')); box.classList.toggle('sel'); return; }
+  const m = msgs.find(x => x.id === box.dataset.id); if (!m) return;
+  const ref = doc(db, 'rooms', room, 'msgs', m.id), act = a.dataset.a;
+  box.classList.remove('sel');
+  if (act === 'copy') { navigator.clipboard?.writeText(m.text).then(() => toast('کپی شد')); return; }
+  if (act === 'react') {
+    openModal(`<h3>واکنش</h3><div class="rpick">${['❤️','😂','👍','🔥','😮','😢','👏','🙏'].map(x => `<button data-e="${x}">${x}</button>`).join('')}</div>`);
+    $('modalCard').querySelectorAll('[data-e]').forEach(b => b.onclick = () => { closeModal(); toggleReact(m.id, b.dataset.e); }); return;
+  }
+  if (act === 'fwd') return forwardModal(m);
+  if (act === 'reply') { replyTo = { id: m.id, name: (users[m.uid] || m).name, text: previewOf(m) }; editing = null; showCtx('پاسخ به ' + replyTo.name + ': ' + replyTo.text); $('inMsg').focus(); }
+  if (act === 'edit') { editing = m; replyTo = null; $('inMsg').value = m.text; showCtx('ویرایش پیام'); $('inMsg').focus(); }
+  if (act === 'del' && confirm('این پیام حذف شود؟')) updateDoc(ref, { deleted: true, text: '', img: '', audio: '' });
+  if (act === 'pin') setDoc(doc(db, 'rooms', room), { pinned: { id: m.id, text: previewOf(m) } }, { merge: true }).then(() => toast('پیام سنجاق شد'));
+};
+$('lightbox').onclick = () => $('lightbox').classList.add('hidden');
+function toggleReact(id, emoji) {
+  const m = msgs.find(x => x.id === id); if (!m) return;
+  const has = (m.reactions?.[emoji] || []).includes(me.uid);
+  updateDoc(doc(db, 'rooms', room, 'msgs', id), new FieldPath('reactions', emoji), has ? arrayRemove(me.uid) : arrayUnion(me.uid)).catch(() => toast('ثبت نشد'));
+}
+
+/* جستجوی پیام */
+$('btnSearch').onclick = () => {
+  $('msgSearchWrap').classList.toggle('hidden');
+  if (!$('msgSearchWrap').classList.contains('hidden')) $('msgSearch').focus(); else { filter = ''; $('msgSearch').value = ''; renderMsgs(); }
+};
+$('msgSearch').oninput = e => { filter = e.target.value; renderMsgs(); };
+
+/* ---------- ارسال ---------- */
+function showCtx(t) { $('ctxTxt').textContent = t; $('ctx').classList.remove('hidden'); }
+function cancelCtx() { replyTo = null; if (editing) $('inMsg').value = ''; editing = null; $('ctx').classList.add('hidden'); }
+$('ctxX').onclick = cancelCtx;
+
+async function post(roomId, data) {
+  const base = { uid: me.uid, name: me.name, handle: me.handle, createdAt: serverTimestamp(), ...data };
+  await addDoc(collection(db, 'rooms', roomId, 'msgs'), base);
+  const t = Date.now();
+  const meta = { last: { text: previewOf(data).slice(0, 60), name: me.name, uid: me.uid, t }, read: { [me.uid]: t } };
+  const mem = membersOf(roomId); if (mem) meta.members = mem;
+  await setDoc(doc(db, 'rooms', roomId), meta, { merge: true });
+  updateDoc(doc(db, 'users', me.uid), { msgCount: increment(1) }).catch(() => {});
+}
+async function sendMsg(extra = {}) {
+  const text = extra.text ?? $('inMsg').value.trim();
+  if (!text && !extra.img && !extra.audio) return;
+  if (editing) {
+    await updateDoc(doc(db, 'rooms', room, 'msgs', editing.id), { text, edited: true });
+    cancelCtx(); $('inMsg').value = ''; return;
+  }
+  const data = { ...extra, text: text || '' };
+  if (replyTo) data.replyTo = replyTo;
+  $('inMsg').value = ''; $('inMsg').style.height = 'auto'; delete drafts[room]; cancelCtx();
+  try { await post(room, data); } catch (e) { toast('ارسال نشد: ' + (e.code || e.message)); return; }
+  $('msgs').scrollTop = $('msgs').scrollHeight;
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+}
+$('btnSend').onclick = () => sendMsg();
+$('inMsg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); sendMsg(); } });
+$('inMsg').addEventListener('input', e => {
+  e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px';
+  if (roomType(room) === 'saved' || (roomType(room) === 'dm' && dmState(room) !== 'ok') || Date.now() - typingSent < 2500) return; typingSent = Date.now();
+  setDoc(doc(db, 'rooms', room), { typing: { [me.uid]: Date.now() } }, { merge: true }).catch(() => {});
+});
+
+/* فوروارد */
+function forwardModal(m) {
+  const ids = ['public', savedId(), ...Object.keys(rooms).filter(id => id !== 'public' && roomType(id) !== 'saved')];
+  openModal(`<h3>فوروارد به…</h3><div class="pick">${ids.map(id => `<label data-f="${id}"><div class="av sm">${info(id).av}</div><b>${esc(info(id).title)}</b></label>`).join('')}</div>
+    <div class="acts2"><button class="btn ghost" id="mClose">انصراف</button></div>`);
+  $('mClose').onclick = closeModal;
+  $('modalCard').querySelectorAll('[data-f]').forEach(l => l.onclick = async () => {
+    closeModal();
+    const d = { text: m.text || '', fwd: { name: (users[m.uid] || m).name } };
+    if (m.img) d.img = m.img; if (m.audio) d.audio = m.audio;
+    try { await post(l.dataset.f, d); toast('فوروارد شد'); } catch { toast('ارسال نشد'); }
+  });
+}
+
+/* عکس */
+$('btnImg').onclick = () => $('fileImg').click();
+$('fileImg').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { sendMsg({ img: await shrinkImage(f, 900), text: $('inMsg').value.trim() }); } catch { toast('تصویر خوانده نشد'); }
+};
+
+/* پیام صوتی */
+let rec = null, chunks = [], recTimer = null;
+$('btnMic').onclick = async () => {
+  if (rec) { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(stream, { audioBitsPerSecond: 24000 }); chunks = [];
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      stream.getTracks().forEach(t => t.stop()); clearTimeout(recTimer); $('btnMic').classList.remove('rec');
+      const blob = new Blob(chunks, { type: rec.mimeType }); rec = null;
+      const fr = new FileReader();
+      fr.onload = () => fr.result.length > 900000 ? toast('پیام صوتی خیلی طولانی است') : sendMsg({ audio: fr.result });
+      fr.readAsDataURL(blob);
+    };
+    rec.start(); $('btnMic').classList.add('rec'); toast('در حال ضبط… دوباره بزنید تا ارسال شود');
+    recTimer = setTimeout(() => rec?.stop(), 40000);
+  } catch { toast('اجازه‌ی میکروفون داده نشد'); }
+};
+
+/* ایموجی، صدا، اسکرول */
+const EMOJIS = Array.from('😀😂🤣😍😘😎🤩🥳😭😡😱🤔🙄😅😉😴👍👎👏🙏💪🤝🔥❤️💔✨🎉🌹☕⚽🎵🏆💯🤲😇🥰😋🤗🫡💀👀🙈');
+$('emojiPanel').innerHTML = EMOJIS.map(e => `<button type="button">${e}</button>`).join('');
+$('btnEmoji').onclick = () => $('emojiPanel').classList.toggle('hidden');
+$('emojiPanel').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const i = $('inMsg'), p = i.selectionStart ?? i.value.length;
+  i.value = i.value.slice(0, p) + b.textContent + i.value.slice(i.selectionEnd ?? p); i.focus();
+  i.selectionStart = i.selectionEnd = p + b.textContent.length;
+};
+function beep() {
+  if (!soundOn) return;
+  try {
+    const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = 880; g.gain.value = .05; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .12);
+    setTimeout(() => c.close(), 400);
+  } catch {}
+}
+$('msgs').addEventListener('scroll', () => $('toBottom').classList.toggle('hidden', $('msgs').scrollHeight - $('msgs').scrollTop - $('msgs').clientHeight < 300));
+$('toBottom').onclick = () => { $('msgs').scrollTop = $('msgs').scrollHeight; };
+
+/* ---------- مودال‌ها ---------- */
+function openModal(html, cls = '') { $('modal').classList.toggle('sheetm', cls.includes('pf-card') || cls.includes('sheet')); $('modalCard').className = 'card ' + cls; $('modalCard').innerHTML = html; $('modal').classList.remove('hidden'); }
+function closeModal() { $('modal').classList.add('hidden'); }
+$('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
+
+/* پروفایل */
+function profileTop(u) {
+  const b = BANNERS[u.banner] || BANNERS[autoBanner(u.uid)];
+  const pts = pointsOf(u), lv = levelOf(pts);
+  const charms = giftCharms(u).slice(0, 3).map((c, i) => `<span class="charm c${i}">${esc(c)}</span>`).join('');
+  return `<div class="pf-top" style="background:linear-gradient(160deg,${b[0]},${b[1]})">
+    <div class="pf-pat">${esc(u.pattern || '✨').repeat(90)}</div>${charms}${fxHtml(u.fx)}
+    <div class="pf-row">
+      <div class="stat"><b>${fa(pts)}</b><small>⭐ امتیاز</small></div>
+      <div class="frame ${frameCls(u)}"><div class="av lg" id="pfAv">${avatarHtml(u)}</div></div>
+      <div class="stat"><b>${fa(lv)}</b><small>🏅 سطح</small></div>
+    </div>
+    <div class="pf-name">${nameHtml(u)} ${esc(u.badge || '')}</div>
+    <div class="pf-id">@${esc(u.handle)}</div>
+    <div class="pf-title">${esc(titleOf(u))}${isVip(u) ? '<span class="elite-chip">👑 الیت</span>' : ''}</div>
+  </div>`;
+}
+function showProfile(uid) {
+  const u = users[uid]; if (!u) return;
+  const self = uid === me.uid, pts = pointsOf(u), lv = levelOf(pts);
+  const st = self ? 'ok' : dmState(dmId(me.uid, uid));
+  const dmLabel = { ok: 'پیام خصوصی', wait: 'درخواست ارسال شده ⏳', incoming: 'پاسخ به درخواست چت', none: 'درخواست چت خصوصی', declined: 'درخواست چت خصوصی', declinedByMe: 'درخواست چت خصوصی' }[st];
+  const joined = u.createdAt?.toDate ? fa(u.createdAt.toDate().toLocaleDateString('fa-IR')) : '—';
+  openModal(`${profileTop(u)}<button class="pf-x" id="pX" aria-label="بستن">✕</button>
+    <div class="pf-body">
+      ${u.bio ? `<div class="pf-bio">${esc(u.bio)}</div>` : ''}
+      ${giftsRow(u)}
+      <div class="pf-cards">
+        <div class="pc"><div class="pci">💬</div><b>${fa(u.msgCount || 0)}</b><small>پیام</small></div>
+        <div class="pc"><div class="pci">📅</div><b>${fa(joinedDays(u))}</b><small>روز عضویت</small></div>
+      </div>
+      <div class="lvl-wrap"><div class="lvl"><i style="width:${pts % 100}%"></i></div><small>${fa(100 - pts % 100)} امتیاز تا سطح ${fa(lv + 1)}</small></div>
+      <table class="pf-tbl">
+        <tr><th>آیدی</th><td dir="ltr" style="text-align:right">@${esc(u.handle)}</td></tr>
+        <tr><th>عنوان</th><td>${esc(titleOf(u))}</td></tr>
+        <tr><th>وضعیت</th><td>${lastSeenText(u)}</td></tr>
+        <tr><th>عضو از</th><td>${joined}</td></tr>
+      </table>
+      <div class="acts2">
+        ${self ? '<button class="btn" id="pEdit">ویرایش و شخصی‌سازی پروفایل</button>' : `<button class="btn" id="pDm">${dmLabel}</button>`}
+        ${!self && isAdmin() ? `<button class="btn ghost" id="pBan">${u.banned ? 'رفع مسدودی' : 'مسدود کردن'}</button><button class="btn ghost" id="pGift">🪙 هدیه ۵۰۰ سکه</button>` : ''}
+      </div>
+    </div>`, 'pf-card');
+  $('pX').onclick = closeModal;
+  if (self) $('pEdit').onclick = editProfile;
+  else {
+    $('pDm').onclick = () => { closeModal(); openRoom(dmId(me.uid, uid)); };
+    $('pGift')?.addEventListener('click', () => updateDoc(doc(db, 'users', uid), { coins: increment(500) }).then(() => toast('۵۰۰ سکه هدیه داده شد')).catch(() => toast('انجام نشد')));
+    $('pBan')?.addEventListener('click', async () => { await updateDoc(doc(db, 'users', uid), { banned: !u.banned }); closeModal(); toast(u.banned ? 'رفع مسدودی شد' : 'کاربر مسدود شد'); });
+  }
+}
+$('meAv').onclick = () => showProfile(me.uid);
+
+function editProfile() {
+  const d = { ...me, charms: [...(me.charms || [])] };
+  openModal(`<div id="pvBox"></div><button class="pf-x" id="pX" aria-label="بستن">✕</button>
+    <div class="pf-body pf-form">
+      <div class="lbl">برای عوض کردن عکس، روی تصویر بالا بزنید</div>
+      <div class="two">
+        <div class="field"><label>نام نمایشی</label><input id="pvName" value="${esc(d.name)}" maxlength="24"></div>
+        <div class="field"><label>نشان کنار نام (ایموجی)</label><input id="pvBadge" value="${esc(d.badge || '')}" maxlength="4" placeholder="👑"></div>
+      </div>
+      <div class="field"><label>عنوان شما (خالی = عنوان خودکار)</label><input id="pvTitle" value="${esc(d.title || '')}" maxlength="18" placeholder="مثلا: چوپان قدیم"></div>
+      <div class="field"><label>درباره من (حداکثر ۸۰ حرف)</label><input id="pvBio" value="${esc(d.bio || '')}" maxlength="80"></div>
+      <div class="lbl">رنگ پس‌زمینه</div>
+      <div class="sw" id="swB">${Object.entries(BANNERS).filter(([k]) => ownsItem('banner', k)).map(([k, c]) => `<button data-b="${k}" aria-label="${k}" style="background:linear-gradient(135deg,${c[0]},${c[1]})"></button>`).join('')}</div>
+      <div class="lbl">قاب عکس</div>
+      <div class="sw fr" id="swF">${Object.entries(FRAMES).filter(([k]) => ownsItem('frame', k)).map(([k, t]) => `<button data-f="${k}">${t}</button>`).join('')}</div>
+      <div class="two">
+        <div class="field"><label>طرح پس‌زمینه (یک ایموجی)</label><input id="pvPat" value="${esc(d.pattern || '')}" maxlength="4" placeholder="🐾"></div>
+        <div></div>
+      </div>
+      <div class="lbl">افکت پروفایل (باران، برف، …)</div>
+      <div class="sw fr" id="swX">${SHOP.fx.filter(it => ownsItem('fx', it.id)).map(it => `<button data-x="${it.id}">${it.name}</button>`).join('')}</div>
+      <div class="lbl">افکت نام</div>
+      <div class="sw fr" id="swN">${SHOP.nameFx.filter(it => ownsItem('nameFx', it.id)).map(it => `<button data-n="${it.id}">${it.name}</button>`).join('')}</div>
+      <div class="lbl">سه کارت شناور دور پروفایل (ایموجی)</div>
+      <div class="charm-in"><input data-c="0" maxlength="4" value="${esc(d.charms[0] || '')}"><input data-c="1" maxlength="4" value="${esc(d.charms[1] || '')}"><input data-c="2" maxlength="4" value="${esc(d.charms[2] || '')}"></div>
+      <div class="acts2"><button class="btn" id="pvSave">ذخیره</button><button class="btn ghost" id="pvShop">🛍 فروشگاه (افکت و قاب بیشتر)</button><button class="btn ghost" id="pvCancel">انصراف</button></div>
+    </div>`, 'pf-card');
+  const paint = () => {
+    $('pvBox').innerHTML = profileTop(d);
+    $('swB').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.b === (d.banner || autoBanner(d.uid))));
+    $('swF').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.f === (d.frame || 'none')));
+    $('swX').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.x === (d.fx || 'none')));
+    $('swN').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.n === (d.nameFx || 'none')));
+  };
+  paint();
+  [['pvBadge', 'badge'], ['pvTitle', 'title'], ['pvPat', 'pattern']].forEach(([i, f]) => { if (!ownsFeat(f)) { $(i).disabled = true; $(i).placeholder = '🔒 از فروشگاه بخر'; } });
+  if (!ownsFeat('charms')) $('modalCard').querySelectorAll('[data-c]').forEach(x => { x.disabled = true; x.placeholder = '🔒'; });
+  $('pvShop').onclick = () => { closeModal(); openShop('fx'); };
+  $('pvBox').onclick = e => { if (e.target.closest('#pfAv')) $('fileAvatar').click(); };
+  $('fileAvatar').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; d.photo = await shrinkImage(f, 256, .8); paint(); };
+  $('swB').onclick = e => { const b = e.target.closest('[data-b]'); if (b) { d.banner = b.dataset.b; paint(); } };
+  $('swF').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { d.frame = b.dataset.f; paint(); } };
+  $('swX').onclick = e => { const b = e.target.closest('[data-x]'); if (b) { d.fx = b.dataset.x; paint(); } };
+  $('swN').onclick = e => { const b = e.target.closest('[data-n]'); if (b) { d.nameFx = b.dataset.n; paint(); } };
+  const bind = (id, k) => $(id).addEventListener('input', e => { d[k] = e.target.value; $('pvBox').innerHTML = profileTop(d); });
+  bind('pvName', 'name'); bind('pvBadge', 'badge'); bind('pvTitle', 'title'); bind('pvPat', 'pattern');
+  $('modalCard').querySelectorAll('[data-c]').forEach(i => i.addEventListener('input', () => {
+    d.charms = [...$('modalCard').querySelectorAll('[data-c]')].map(x => x.value.trim()).filter(Boolean); $('pvBox').innerHTML = profileTop(d);
+  }));
+  $('pX').onclick = $('pvCancel').onclick = closeModal;
+  $('pvSave').onclick = async () => {
+    const name = $('pvName').value.trim(); if (!name) return toast('نام را وارد کنید');
+    try {
+      await updateDoc(doc(db, 'users', me.uid), {
+        name, photo: d.photo || '', bio: $('pvBio').value.trim().slice(0, 80), title: ($('pvTitle').value || '').trim().slice(0, 18),
+        badge: ($('pvBadge').value || '').trim().slice(0, 4), pattern: ($('pvPat').value || '').trim().slice(0, 4),
+        banner: d.banner || '', frame: d.frame || 'none', fx: d.fx || 'none', nameFx: d.nameFx || 'none', charms: (d.charms || []).slice(0, 3)
+      });
+      closeModal(); toast('پروفایل ذخیره شد');
+    } catch { toast('ذخیره نشد'); }
+  };
+}
+
+/* تنظیمات */
+$('btnSettings').onclick = () => {
+  const T = { gold: '#d4af37', ocean: '#4da3ff', emerald: '#2fd18b', rose: '#ff5f8f', light: '#f2e6b8' };
+  openModal(`<h3>تنظیمات</h3><div class="themes">${Object.entries(T).map(([k, c]) => `<button data-t="${k}" style="background:${c}" class="${document.documentElement.dataset.theme === k ? 'on' : ''}" aria-label="تم ${k}"></button>`).join('')}</div>
+    <div class="setrow"><span>صدای پیام جدید</span><button class="btn ghost" style="width:auto;padding:6px 16px" id="sndBtn">${soundOn ? 'روشن' : 'خاموش'}</button></div>
+    <div class="setrow"><span>اعلان مرورگر</span><button class="btn ghost" style="width:auto;padding:6px 16px" id="ntfBtn">${'Notification' in window && Notification.permission === 'granted' ? 'فعال' : 'فعال‌سازی'}</button></div>
+    <div class="setrow"><span>ویرایش پروفایل</span><button class="btn ghost" style="width:auto;padding:6px 16px" id="prfBtn">باز کردن</button></div>
+    <div class="acts2"><button class="btn ghost" id="mClose">بستن</button></div>`);
+  $('modalCard').querySelectorAll('[data-t]').forEach(b => b.onclick = () => { setTheme(b.dataset.t); $('modalCard').querySelectorAll('[data-t]').forEach(x => x.classList.toggle('on', x === b)); });
+  $('sndBtn').onclick = e => { soundOn = !soundOn; localStorage.setItem('snd', soundOn ? '1' : '0'); e.target.textContent = soundOn ? 'روشن' : 'خاموش'; if (soundOn) beep(); };
+  $('ntfBtn').onclick = async e => { if ('Notification' in window) { const p = await Notification.requestPermission(); e.target.textContent = p === 'granted' ? 'فعال' : 'مسدود'; } else toast('مرورگر پشتیبانی نمی‌کند'); };
+  $('prfBtn').onclick = editProfile; $('mClose').onclick = closeModal;
+};
+
+/* گروه */
+$('btnNewGroup').onclick = () => {
+  const others = Object.values(users).filter(u => u.uid !== me.uid).sort((a, b) => a.name.localeCompare(b.name, 'fa'));
+  openModal(`<h3>گروه جدید</h3>
+    <div class="field" style="margin-top:12px;text-align:start"><label>نام گروه</label><input id="gName" maxlength="30"></div>
+    <div class="field" style="text-align:start"><label>ایموجی گروه</label><input id="gEmoji" value="👥" maxlength="4"></div>
+    <div style="text-align:start;color:var(--mut);font-size:.8rem">اعضا</div>
+    <div class="pick">${others.map(u => `<label><input type="checkbox" value="${u.uid}"><div class="av sm">${avatarHtml(u)}</div><b>${esc(u.name)}</b></label>`).join('') || '<p class="empty">هنوز کاربر دیگری نیست</p>'}</div>
+    <div class="err" id="gErr"></div>
+    <div class="acts2"><button class="btn" id="gMake">ساخت گروه</button><button class="btn ghost" id="mClose">انصراف</button></div>`);
+  $('mClose').onclick = closeModal;
+  $('gMake').onclick = async () => {
+    const name = $('gName').value.trim(), sel = [...$('modalCard').querySelectorAll('.pick input:checked')].map(i => i.value);
+    if (!name) return $('gErr').textContent = 'نام گروه را بنویسید.';
+    if (!sel.length) return $('gErr').textContent = 'حداقل یک عضو انتخاب کنید.';
+    const id = 'g_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    try {
+      await setDoc(doc(db, 'rooms', id), { type: 'group', name, emoji: $('gEmoji').value.trim() || '👥', owner: me.uid, members: [me.uid, ...sel], created: Date.now() });
+      closeModal(); openRoom(id);
+    } catch { $('gErr').textContent = 'ساخته نشد. قوانین Firestore را بررسی کنید.'; }
+  };
+};
+function showGroup() {
+  const r = rooms[room]; if (!r) return;
+  const mem = (r.members || []).map(id => users[id]).filter(Boolean);
+  openModal(`<div class="av lg" style="margin:auto">${esc(r.emoji || '👥')}</div><h3>${esc(r.name)}</h3>
+    <small style="color:var(--mut)">${fa(mem.length)} عضو</small>
+    <div class="pick">${mem.map(u => `<label data-u="${u.uid}"><div class="av sm">${avatarHtml(u)}</div><b>${esc(u.name)}${u.uid === r.owner ? ' 👑' : ''}</b></label>`).join('')}</div>
+    <div class="acts2">${r.owner !== me.uid ? '<button class="btn danger" id="gLeave">ترک گروه</button>' : ''}<button class="btn ghost" id="mClose">بستن</button></div>`);
+  $('mClose').onclick = closeModal;
+  $('modalCard').querySelectorAll('[data-u]').forEach(l => l.onclick = () => showProfile(l.dataset.u));
+  $('gLeave')?.addEventListener('click', async () => {
+    if (!confirm('از گروه خارج می‌شوید؟')) return;
+    try { await updateDoc(doc(db, 'rooms', room), { members: arrayRemove(me.uid) }); closeModal(); delete rooms[room]; openRoom('public'); } catch { toast('انجام نشد'); }
+  });
+}
+
+/* =====================================================================
+   اقتصاد (سکه)، الیت و فروشگاه
+   نکته امنیتی: این منطق سمت کلاینت است. برای جلوگیری از تقلب، قوانین
+   Firestore را طوری بنویس که کاربر فقط بتواند coins را کم کند (نه زیاد).
+   ===================================================================== */
+const isVip = u => (u?.vipUntil || 0) > Date.now();
+const vipDays = u => Math.max(0, Math.ceil(((u?.vipUntil || 0) - Date.now()) / 864e5));
+const nameHtml = u => { const n = esc(u?.name || ''); return u?.nameFx && u.nameFx !== 'none' ? `<span class="nfx nfx-${esc(u.nameFx)}">${n}</span>` : n; };
+
+const SHOP = {
+  frame: [
+    { id: 'none', name: 'بدون', price: 0 }, { id: 'gold', name: 'طلایی', price: 300 }, { id: 'neon', name: 'نئون', price: 400 },
+    { id: 'ice', name: 'یخی', price: 400 }, { id: 'rainbow', name: 'رنگین‌کمان', price: 500 }, { id: 'fire', name: 'آتش', price: 600 },
+    { id: 'toxic', name: 'سمی', price: 450 }, { id: 'sakura', name: 'شکوفه', price: 500 },
+    { id: 'galaxy', name: 'کهکشان', vip: true }, { id: 'royal', name: 'سلطنتی', vip: true }, { id: 'diamond', name: 'الماس', vip: true }],
+  nameFx: [
+    { id: 'none', name: 'ساده', price: 0 }, { id: 'glow', name: 'درخشش ویژه', price: 250 }, { id: 'fire', name: 'آتش', price: 400 },
+    { id: 'neon', name: 'نئون', price: 400 }, { id: 'rainbow', name: 'رنگین‌کمان', price: 500 },
+    { id: 'ice', name: 'یخی', price: 400 }, { id: 'love', name: 'عاشقانه', price: 450 },
+    { id: 'gold', name: 'طلای زنده', vip: true }, { id: 'legend', name: 'افسانه‌ای', vip: true }],
+  banner: [
+    { id: 'sunset', name: 'غروب', price: 0 }, { id: 'ocean', name: 'اقیانوس', price: 0 }, { id: 'emerald', name: 'زمرد', price: 0 },
+    { id: 'raspberry', name: 'تمشک', price: 150 }, { id: 'night', name: 'شب', price: 150 }, { id: 'gold', name: 'طلایی', price: 250 },
+    { id: 'violet', name: 'بنفش', price: 300 }, { id: 'fire', name: 'آتشین', price: 300 },
+    { id: 'sakura', name: 'شکوفه', price: 200 }, { id: 'mint', name: 'نعنا', price: 200 }, { id: 'midnight', name: 'نیمه‌شب', price: 250 }, { id: 'sand', name: 'ماسه', price: 200 },
+    { id: 'aurora', name: 'شفق', vip: true }, { id: 'galaxy', name: 'کهکشان', vip: true }, { id: 'royal', name: 'سلطنتی', vip: true }]
+};
+SHOP.fx = [
+  { id: 'none', name: 'بدون', price: 0, ic: '🚫' }, { id: 'rain', name: '🌧 باران', price: 300, ic: '🌧' }, { id: 'snow', name: '❄️ برف', price: 300, ic: '❄️' },
+  { id: 'bubbles', name: '🫧 حباب', price: 300, ic: '🫧' }, { id: 'stars', name: '✨ ستاره', price: 350, ic: '✨' }, { id: 'hearts', name: '💖 قلب', price: 400, ic: '💖' },
+  { id: 'petals', name: '🌸 شکوفه', price: 400, ic: '🌸' }, { id: 'confetti', name: '🎉 کنفتی', price: 450, ic: '🎉' }, { id: 'embers', name: '🔥 جرقه', price: 500, ic: '🔥' },
+  { id: 'storm', name: '⛈ طوفان', vip: true, ic: '⛈' }, { id: 'gold', name: '🌟 غبار طلایی', vip: true, ic: '🌟' }];
+function fxHtml(id) {
+  if (!id || id === 'none') return '';
+  const n = { rain: 34, storm: 40, snow: 30, stars: 22, hearts: 14, bubbles: 16, petals: 14, confetti: 26, embers: 24, gold: 28 }[id] || 20; let h = '';
+  for (let i = 1; i <= n; i++) {
+    const a = (i * 0.6180339) % 1, b = (i * 0.7548776) % 1, c = (i * 0.5698402) % 1;
+    h += `<i style="--x:${(a * 96).toFixed(1)}%;--y:${(b * 92).toFixed(1)}%;--d:${(-b * 4).toFixed(2)}s;--t:${(0.8 + c * 2.2).toFixed(2)}s;--s:${(0.6 + c * 0.9).toFixed(2)}"></i>`;
+  }
+  return `<div class="fx fx-${esc(id)}">${h}${id === 'storm' ? '<b></b>' : ''}</div>`;
+}
+const FEATS = [
+  { id: 'title', name: 'عنوان دلخواه', desc: 'هر عنوانی خواستی کنار پروفایلت', price: 300 },
+  { id: 'badge', name: 'نشان کنار نام', desc: 'یک ایموجی کنار اسمت', price: 150 },
+  { id: 'pattern', name: 'طرح پس‌زمینه', desc: 'ایموجی تکرارشونده پشت پروفایل', price: 200 },
+  { id: 'charms', name: 'کارت‌های شناور', desc: 'سه ایموجی شناور دور پروفایل', price: 250 }];
+const PLANS = [{ days: 7, price: 300, t: 'الیت ۷ روزه' }, { days: 30, price: 1000, t: 'الیت ۳۰ روزه' }, { days: 90, price: 2500, t: 'الیت ۹۰ روزه · بهترین قیمت' }];
+const itemOf = (cat, id) => SHOP[cat].find(x => x.id === id);
+function ownsItem(cat, id, u = me) {
+  const it = itemOf(cat, id); if (!it) return true;
+  if (!it.price && !it.vip) return true;
+  if (it.vip && isVip(u)) return true;
+  if (u?.[cat] === id) return true;
+  return (u?.owned || []).includes(cat + ':' + id);
+}
+const ownsFeat = (id, u = me) => isVip(u) || (u?.owned || []).includes('feat:' + id);
+
+let shopD = null, shopTab = 'vip', welcomed = false, meSig = '';
+function onMeChanged() {
+  if (me.coins === undefined && !welcomed) { welcomed = true; updateDoc(doc(db, 'users', me.uid), { coins: 300 }).then(() => toast('🎁 ۳۰۰ سکه هدیه ورود')).catch(() => {}); }
+  const s = [me.coins, me.vipUntil, (me.owned || []).length, me.frame, me.nameFx, me.banner, me.fx, (me.gifts || []).length, (me.giftShow || []).join()].join();
+  if (s !== meSig) { meSig = s; if (!$('shop').classList.contains('hidden')) renderShop(); }
+}
+const RAR = { common: { n: 'معمولی', c: '#9aa6c7' }, rare: { n: 'کمیاب', c: '#4da3ff' }, epic: { n: 'حماسی', c: '#b46cff' }, legend: { n: 'افسانه‌ای', c: '#ffc533' } };
+const rarOf = it => it.r || (it.vip ? 'legend' : it.price >= 600 ? 'legend' : it.price >= 450 ? 'epic' : it.price >= 300 ? 'rare' : 'common');
+const fmt = n => fa(Number(n).toLocaleString('en-US'));
+const rial = p => fmt(p * 1800);
+const GIFTS = [
+  ['🍦', 'بستنی چوبی', 180, 'common'], ['🍓', 'جعبه توت', 220, 'common'], ['🧦', 'جوراب گرم', 210, 'common'], ['⌨️', 'کلید ورودی', 260, 'common'], ['🏆', 'جام الگوریتم', 250, 'common'],
+  ['🎀', 'پاپیون', 330, 'rare'], ['🍨', 'بستنی وانیل', 390, 'rare'], ['🤡', 'کلاه دلقک', 470, 'rare'], ['☕', 'نوشیدنی تعطیلات', 450, 'rare'], ['🍀', 'سنجاق شبدر', 490, 'rare'],
+  ['🚗', 'لو رایدر', 650, 'epic'], ['💎', 'حلقه الماس', 800, 'epic'], ['🔮', 'گوی جادو', 850, 'epic'], ['📅', 'تقویم رومیزی', 900, 'epic'], ['💝', 'قلب عاشقانه', 950, 'epic'],
+  ['🕯️', 'شمع تولد', 1500, 'legend'], ['🎆', 'جشن سال نو', 1500, 'legend'], ['💍', 'حلقه ازدواج', 1500, 'legend'], ['🍼', 'پستانک طلایی', 1500, 'legend'], ['⌚', 'ساعت سوئیسی', 1490, 'legend'],
+  ['🍭', 'عصای شیرینی', 1500, 'legend'], ['🧁', 'کیک خرگوشی', 1500, 'legend'], ['🪔', 'چراغ جادو', 1800, 'legend'], ['👑', 'تاج شاهی', 2500, 'legend']
+].map(([e, name, price, r], i) => ({ id: 'g' + (i + 1), e, name, price, r, code: i + 1 }));
+const GIFT_BY = Object.fromEntries(GIFTS.map(g => [g.id, g]));
+const giftCharms = u => { const a = (u?.giftShow || []).map(id => GIFT_BY[id]?.e).filter(Boolean); return a.length ? a : (u?.charms || []); };
+const giftsRow = u => { const a = (u?.gifts || []).map(id => GIFT_BY[id]).filter(Boolean); return a.length ? `<div class="lbl">🎁 گیفت‌ها (${fa(a.length)})</div><div class="gifts-row">${a.slice(0, 14).map(g => `<span class="gmini ${g.r}" title="${esc(g.name)}">${g.e}</span>`).join('')}</div>` : ''; };
+
+let shopSub = 'frame', shopQ = '', shopSel = null;
+$('btnShop').onclick = () => openShop('gifts');
+function openShop(tab) {
+  if (['frame', 'nameFx', 'banner', 'fx', 'feat'].includes(tab)) { shopSub = tab; shopTab = 'look'; } else shopTab = tab || 'gifts';
+  shopQ = ''; shopSel = null;
+  shopD = { frame: me.frame || 'none', nameFx: me.nameFx || 'none', banner: me.banner || autoBanner(me.uid), fx: me.fx || 'none' };
+  $('shop').classList.remove('hidden'); renderShop();
+}
+const closeShop = () => $('shop').classList.add('hidden');
+const cartItems = () => ['frame', 'nameFx', 'banner', 'fx'].filter(c => !ownsItem(c, shopD[c])).map(c => ({ cat: c, it: itemOf(c, shopD[c]) }));
+
+const pricePill = (p, own, vipOnly, extra = '') => own ? `<span class="gprice own">${extra || '✓ دارم'}</span>` : vipOnly ? '<span class="gprice lock">🔒 الیت</span>' : p ? `<span class="gprice"><i class="coin-ic"></i>${fmt(p)}</span><small class="grial">${rial(p)} ریال</small>` : '<span class="gprice own">رایگان</span>';
+function giftCard(g) {
+  const own = (me.gifts || []).includes(g.id), shown = (me.giftShow || []).includes(g.id);
+  return `<button class="gc ${g.r}" data-act="gift" data-id="${g.id}"><span class="gcode">کد ${fa(g.code)}</span>
+    <div class="gart"><div class="glow"></div><span class="emo">${g.e}</span></div><b class="gname">${g.name}</b><span class="grar">${RAR[g.r].n}</span>
+    ${own ? `<span class="gprice own">${shown ? '⭐ روی پروفایل' : '✓ دارم'}</span>` : `<span class="gprice"><i class="coin-ic"></i>${fmt(g.price)}</span><small class="grial">${rial(g.price)} ریال</small>`}</button>`;
+}
+function lookCard(cat, it, n) {
+  const own = ownsItem(cat, it.id), sel = shopD[cat] === it.id, r = rarOf(it);
+  const art = cat === 'frame' ? `<div class="av ${it.id !== 'none' ? 'f-' + it.id : ''}">😀</div>`
+    : cat === 'nameFx' ? (it.id === 'none' ? `<b class="nm">${esc(me.name)}</b>` : `<span class="nm nfx nfx-${it.id}">${esc(me.name)}</span>`)
+    : cat === 'fx' ? `<span class="emo">${it.ic}</span>` : `<div class="bn" style="background:linear-gradient(135deg,${BANNERS[it.id][0]},${BANNERS[it.id][1]})"></div>`;
+  return `<button class="gc ${r} ${sel ? 'sel' : ''}" data-act="pick" data-id="${it.id}"><span class="gcode">کد ${fa(n)}</span>
+    <div class="gart"><div class="glow"></div>${art}</div><b class="gname">${it.name.replace(/^[^\s]+\s/, m => /[\u0600-\u06FF]/.test(m) ? m : '')}</b><span class="grar">${RAR[r].n}</span>
+    ${pricePill(it.price, own, it.vip && !own, it.vip ? '👑 الیت' : it.price ? '✓ دارم' : '')}</button>`;
+}
+function shGrid() {
+  const q = shopQ.trim();
+  if (shopTab === 'gifts') { const l = GIFTS.filter(g => !q || g.name.includes(q)); return l.length ? `<div class="sg2">${l.map(giftCard).join('')}</div>` : '<div class="hint">چیزی پیدا نشد</div>'; }
+  if (shopTab === 'bag') { const l = (me.gifts || []).map(id => GIFT_BY[id]).filter(Boolean); return l.length ? `<div class="sg2">${l.map(giftCard).join('')}</div><div class="hint">تا ۳ گیفت را می‌توانی روی پروفایلت نمایش بدهی</div>` : '<div class="hint" style="padding:40px 0">🎒 کوله‌ات خالیه<br>از تب گیفت‌ها چیزی بخر</div>'; }
+  if (shopTab === 'look') {
+    if (shopSub === 'feat') return FEATS.map(f => { const has = ownsFeat(f.id); return `<div class="plan"><div><b>${f.name}</b><small>${f.desc}</small></div>${has ? `<span class="gprice own" style="min-width:0">${isVip(me) && !(me.owned || []).includes('feat:' + f.id) ? '👑 الیت' : '✓ دارم'}</span>` : `<button class="btn" data-act="feat" data-id="${f.id}"><i class="coin-ic" style="vertical-align:middle"></i> ${fmt(f.price)}</button>`}</div>`; }).join('') + '<div class="hint">بعد از خرید، از «ویرایش پروفایل» استفاده‌شان کن.</div>';
+    const l = SHOP[shopSub].map((it, i) => [it, i + 1]).filter(([it]) => !q || it.name.includes(q));
+    return `<div class="sg2">${l.map(([it, n]) => lookCard(shopSub, it, n)).join('')}</div>`;
+  }
+  const vip = isVip(me);
+  return `<div class="vipcard ${vip ? '' : 'off'}"><b>${vip ? `👑 الیت · ${fa(vipDays(me))} روز مانده` : '👑 الیت فعال نیست'}</b><small>${vip ? 'معتبر تا ' + fa(new Date(me.vipUntil).toLocaleDateString('fa-IR')) : 'با الیت به همه آیتم‌های ویژه دسترسی داری'}</small></div>
+    <div class="perk"><span>✨</span><span>همه قاب‌ها، افکت‌های نام، افکت‌های پروفایل (طوفان، غبار طلایی) و پس‌زمینه‌های الیت + تمام امکانات پروفایل</span></div>
+    <div class="perk"><span>🎁</span><span>هدیه روزانه دو برابر (۱۰۰ سکه به‌جای ۴۰)</span></div>
+    ${PLANS.map(p => `<div class="plan"><div><b>${p.t}</b><small>${vip ? 'به زمان فعلی اضافه می‌شود' : 'شروع از همین الان'}</small></div><button class="btn" data-act="vip" data-id="${p.days}"><i class="coin-ic" style="vertical-align:middle"></i> ${fmt(p.price)}</button></div>`).join('')}
+    <button class="btn ghost" data-act="daily">🎁 دریافت هدیه روزانه</button>
+    <div class="hint">سکه با هدیه روزانه به دست می‌آید. برای شارژ سکه با ادمین در ارتباط باش.</div>`;
+}
+function sheetHtml() {
+  const g = GIFT_BY[shopSel]; if (!g) return '';
+  const own = (me.gifts || []).includes(g.id), shown = (me.giftShow || []).includes(g.id);
+  return `<div class="sh-sheet" data-act="closesheet"><div class="sh-card gc ${g.r}" style="background:linear-gradient(180deg,#2e1c6e,#1c1146)">
+    <div class="gart"><div class="glow"></div><span class="emo">${g.e}</span></div><h3>${g.name}</h3>
+    <span class="grar">${RAR[g.r].n} · کد ${fa(g.code)}</span>
+    ${own ? `<button class="btn" data-act="show" data-id="${g.id}">${shown ? 'برداشتن از پروفایل' : '⭐ نمایش روی پروفایل'}</button>
+      <button class="btn sell" data-act="sell" data-id="${g.id}">فروش · ${fmt(Math.floor(g.price * .7))} 🪙</button>`
+      : `<button class="btn" data-act="buy" data-id="${g.id}">خرید · ${fmt(g.price)} 🪙</button><small class="grial">${rial(g.price)} ریال</small>`}
+    <button class="btn ghost" data-act="closesheet">بستن</button></div></div>`;
+}
+function renderShop() {
+  if (!me || !shopD) return;
+  const keep = $('shopBody')?.scrollTop || 0, vip = isVip(me), lvl = levelOf(pointsOf(me));
+  const main = [['gifts', '🎁 گیفت‌ها'], ['look', '✨ ظاهر'], ['vip', '👑 الیت'], ['bag', '🎒 کوله']];
+  const subs = [['frame', 'قاب'], ['nameFx', 'افکت نام'], ['fx', '🌧 افکت'], ['banner', 'پس‌زمینه'], ['feat', 'امکانات']];
+  const cart = cartItems(), total = cart.reduce((a, x) => a + (x.it.price || 0), 0), needVip = cart.some(x => x.it.vip);
+  const showSearch = shopTab === 'gifts' || (shopTab === 'look' && shopSub !== 'feat');
+  $('shop').innerHTML = `<div class="sh-hud"><div class="sh-ttl"><div class="av sm ${frameCls(me)}">${avatarHtml(me)}</div><div><b class="gold-text">فروشگاه</b><div><span class="lvl-pill">Level ${fa(lvl)}</span></div></div></div>
+      <div class="sh-r"><span class="pill elite">👑 ${vip ? fa(vipDays(me)) : '—'}</span><span class="pill coinp"><i class="coin-ic"></i>${fmt(me.coins || 0)}<em data-act="plus">+</em></span><button class="sh-x" data-act="x" aria-label="بستن">✕</button></div></div>
+    <div class="sh-seg">${main.map(([k, t]) => `<button data-act="tab" data-id="${k}" class="${shopTab === k ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <div class="ov-b" id="shopBody">
+      ${shopTab === 'look' ? `<div class="shop-prev">${profileTop({ ...me, ...shopD })}</div><div class="sh-chips">${subs.map(([k, t]) => `<button data-act="sub" data-id="${k}" class="${shopSub === k ? 'on' : ''}">${t}</button>`).join('')}</div>` : ''}
+      ${showSearch ? `<input class="sh-search" id="shQ" placeholder="${shopTab === 'gifts' ? 'جستجوی نام گیفت…' : 'جستجو…'}" value="${esc(shopQ)}">` : ''}
+      <div id="shGrid" style="display:grid;gap:12px">${shGrid()}</div></div>
+    ${shopTab === 'look' && shopSub !== 'feat' ? `<div class="ov-f">${needVip ? '<button class="btn" data-act="govip">👑 برای استفاده الیت بگیر</button>' : `<button class="btn" data-act="apply">${total ? `خرید و اعمال · 🪙 ${fmt(total)}` : 'اعمال'}</button>`}<button class="btn ghost" data-act="x">انصراف</button></div>` : ''}
+    ${sheetHtml()}`;
+  $('shopBody').scrollTop = keep;
+}
+$('shop').addEventListener('input', e => { if (e.target.id === 'shQ') { shopQ = e.target.value; $('shGrid').innerHTML = shGrid(); } });
+$('shop').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act, id = b.dataset.id;
+  if (a === 'closesheet') { if (e.target.closest('.sh-card') && !e.target.closest('[data-act="closesheet"].btn')) { if (e.target.closest('[data-act]') === e.target.closest('.sh-sheet')) return; } shopSel = null; return renderShop(); }
+  if (a === 'x') return closeShop();
+  if (a === 'plus') return toast('برای شارژ سکه با ادمین در ارتباط باش');
+  if (a === 'tab') { shopTab = id; shopQ = ''; return renderShop(); }
+  if (a === 'sub') { shopSub = id; shopQ = ''; return renderShop(); }
+  if (a === 'pick') { shopD[shopSub] = id; return renderShop(); }
+  if (a === 'gift') { shopSel = id; return renderShop(); }
+  if (a === 'apply') return shopApply();
+  if (a === 'govip') { shopTab = 'vip'; renderShop(); return toast('این آیتم مخصوص الیت است'); }
+  if (a === 'vip') return buyVip(+id);
+  if (a === 'feat') return buyFeat(id);
+  if (a === 'daily') return claimDaily();
+  if (a === 'buy') return buyGift(id);
+  if (a === 'show') return toggleShow(id);
+  if (a === 'sell') return sellGift(id);
+});
+async function buyGift(id) {
+  const g = GIFT_BY[id];
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid), u = (await tx.get(ref)).data();
+      if ((u.gifts || []).includes(id)) throw new Error('own');
+      if ((u.coins || 0) < g.price) throw new Error('coins');
+      tx.update(ref, { coins: (u.coins || 0) - g.price, gifts: [...(u.gifts || []), id] });
+    });
+    toast(`🎁 «${g.name}» مال تو شد`); renderShop();
+  } catch (e) { toast(e.message === 'coins' ? 'سکه کافی نیست 🪙' : e.message === 'own' ? 'این گیفت را داری' : 'انجام نشد'); }
+}
+async function toggleShow(id) {
+  const cur = me.giftShow || []; let n;
+  if (cur.includes(id)) n = cur.filter(x => x !== id); else { if (cur.length >= 3) return toast('حداکثر ۳ گیفت روی پروفایل'); n = [...cur, id]; }
+  try { await updateDoc(doc(db, 'users', me.uid), { giftShow: n }); toast(cur.includes(id) ? 'برداشته شد' : 'روی پروفایلت نمایش داده می‌شود ⭐'); shopSel = null; renderShop(); } catch { toast('انجام نشد'); }
+}
+async function sellGift(id) {
+  const g = GIFT_BY[id], back = Math.floor(g.price * .7);
+  if (!confirm(`«${g.name}» به قیمت ${fa(back)} سکه فروخته شود؟`)) return;
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid), u = (await tx.get(ref)).data();
+      if (!(u.gifts || []).includes(id)) throw new Error('x');
+      tx.update(ref, { coins: (u.coins || 0) + back, gifts: u.gifts.filter(x => x !== id), giftShow: (u.giftShow || []).filter(x => x !== id) });
+    });
+    toast(`🪙 ${fa(back)} سکه گرفتی`); shopSel = null; renderShop();
+  } catch { toast('انجام نشد'); }
+}
+async function shopApply() {
+  const cart = cartItems(), total = cart.reduce((a, x) => a + (x.it.price || 0), 0);
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid), u = (await tx.get(ref)).data();
+      if ((u.coins || 0) < total) throw new Error('coins');
+      const upd = { frame: shopD.frame, nameFx: shopD.nameFx, banner: shopD.banner, fx: shopD.fx };
+      if (total) { upd.coins = (u.coins || 0) - total; upd.owned = [...new Set([...(u.owned || []), ...cart.map(x => x.cat + ':' + x.it.id)])]; }
+      tx.update(ref, upd);
+    });
+    toast('روی پروفایلت اعمال شد ✨'); closeShop();
+  } catch (e) { toast(e.message === 'coins' ? 'سکه کافی نیست 🪙' : 'انجام نشد'); }
+}
+async function buyVip(days) {
+  const p = PLANS.find(x => x.days === days);
+  if (!confirm(`${p.t} به قیمت ${fa(p.price)} سکه خریداری شود؟`)) return;
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid), u = (await tx.get(ref)).data();
+      if ((u.coins || 0) < p.price) throw new Error('coins');
+      tx.update(ref, { coins: (u.coins || 0) - p.price, vipUntil: Math.max(u.vipUntil || 0, Date.now()) + days * 864e5 });
+    });
+    toast('👑 الیت فعال شد!');
+  } catch (e) { toast(e.message === 'coins' ? 'سکه کافی نیست 🪙' : 'انجام نشد'); }
+}
+async function buyFeat(id) {
+  const f = FEATS.find(x => x.id === id);
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid), u = (await tx.get(ref)).data();
+      if ((u.coins || 0) < f.price) throw new Error('coins');
+      tx.update(ref, { coins: (u.coins || 0) - f.price, owned: [...new Set([...(u.owned || []), 'feat:' + id])] });
+    });
+    toast(`«${f.name}» باز شد ✅`);
+  } catch (e) { toast(e.message === 'coins' ? 'سکه کافی نیست 🪙' : 'انجام نشد'); }
+}
+async function claimDaily() {
+  const today = new Date().toDateString();
+  if (me.lastDaily === today) return toast('هدیه امروز را گرفتی. فردا برگرد 🌙');
+  const n = isVip(me) ? 100 : 40;
+  try { await updateDoc(doc(db, 'users', me.uid), { coins: increment(n), lastDaily: today }); toast(`🎁 ${fa(n)} سکه گرفتی`); } catch { toast('انجام نشد'); }
+}
+
+/* =====================================================================
+   کاربران آنلاین داخل چت‌روم
+   ===================================================================== */
+const onlineList = () => {
+  const t = roomType(room);
+  const arr = t === 'group' ? (rooms[room]?.members || []).map(id => users[id]).filter(Boolean) : Object.values(users);
+  return arr.filter(isOnline).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'fa'));
+};
+function updateOnlineBtn() {
+  const b = $('btnOnline'); if (!b || !me) return;
+  const t = roomType(room), show = t === 'public' || t === 'group';
+  b.classList.toggle('hidden', !show); if (show) $('onN').textContent = fa(onlineList().length);
+}
+$('btnOnline').onclick = () => showOnline();
+function showOnline() {
+  const on = onlineList(), total = roomType(room) === 'group' ? (rooms[room]?.members || []).length : Object.keys(users).length;
+  openModal(`<h3>🟢 آنلاین‌ها (${fa(on.length)} از ${fa(total)})</h3>
+    <div class="pick" style="max-height:58vh">${on.map(u => `<label data-u="${u.uid}"><div class="av sm ${frameCls(u)}">${avatarHtml(u)}</div>
+      <div style="flex:1;min-width:0"><b>${nameHtml(u)}</b>${isVip(u) ? ' 👑' : ''}${u.uid === me.uid ? ' (تو)' : ''}<br><small style="color:var(--mut)">@${esc(u.handle)} · ${esc(titleOf(u))}</small></div><span class="dot on"></span></label>`).join('') || '<p class="empty">الان کسی آنلاین نیست</p>'}</div>
+    <div class="acts2"><button class="btn ghost" id="mClose">بستن</button></div>`, 'sheet');
+  $('mClose').onclick = closeModal;
+  $('modalCard').querySelectorAll('[data-u]').forEach(l => l.onclick = () => showProfile(l.dataset.u));
+}
+</script>
+</body>
+</html>
