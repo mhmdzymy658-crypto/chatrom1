@@ -505,9 +505,15 @@ import { getFirestore, initializeFirestore, persistentLocalCache, persistentMult
 const $ = id => document.getElementById(id);
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-let db;
-try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }), experimentalAutoDetectLongPolling: true }); }
-catch { try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); } catch { db = getFirestore(app); } }
+let db;try {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    experimentalForceLongPolling: true
+  });
+} catch {
+  try { db = initializeFirestore(app, { experimentalForceLongPolling: true }); }
+  catch { db = getFirestore(app); }
+}
 
 let me = null, users = {}, rooms = {}, room = 'public', msgs = [];
 let replyTo = null, editing = null, filter = '';
