@@ -88,24 +88,351 @@ h3.sec{margin:16px 2px 8px;color:var(--gold2);font-size:.98rem}
 <div id="toast"></div>
 
 <script type="module">
-/* ====== کتابخانه‌ی فایربیس (اگر گوگل بسته بود از منبع دوم) ====== */
-const FB_V = '10.12.2';
-const SRC = [n => `https://www.gstatic.com/firebasejs/${FB_V}/firebase-${n}.js`, n => `https://cdn.jsdelivr.net/npm/firebase@${FB_V}/${n}/+esm`];
-let FB = null;
-for (const f of SRC) { try { FB = await Promise.all(['app', 'auth', 'firestore'].map(n => import(f(n)))); break; } catch (e) { /* منبع بعدی */ } }
-if (!FB) { document.getElementById('boot').innerHTML = 'بارگذاری ناموفق بود 😕<br>فیلترشکن را روشن کن و صفحه را رفرش کن.'; throw new Error('sdk'); }
-const { initializeApp } = FB[0];
-const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = FB[1];
-const { initializeFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, orderBy, limit, limitToLast, onSnapshot, writeBatch, runTransaction, serverTimestamp, increment, arrayUnion, arrayRemove, deleteField } = FB[2];
+/* ====== اتصال به Supabase (همان بک‌اند بازی) ====== */
+const SUPABASE_URL = 'https://pcvcaajarrlhfakdykah.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjdmNhYWphcnJsaGZha2R5a2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDI5NjcsImV4cCI6MjEwNzkxODk2N30.kkg60Cqq9BhhPBdw2KN9uqPf0uvsJY7I5kY25Q5DOAE';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA493Bu5c0KulCIJzobNvXmQDsw5AkkuJI",
-  authDomain: "soperprochat-12.firebaseapp.com",
-  projectId: "soperprochat-12",
-  storageBucket: "soperprochat-12.firebasestorage.app",
-  messagingSenderId: "542316141846",
-  appId: "1:542316141846:web:65ff7dd0ac182447aa4437"
-};
+function __makeShim(supa) {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const autoId = () => { const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', a = new Uint8Array(20); crypto.getRandomValues(a); return Array.from(a, x => c[x % 62]).join(''); };
+  const parentOf = p => p.replace(/\/[^/]+$/, '');
+
+  /* ---------- خطاها ---------- */
+  const fsErr = e => {
+    if (e && e.__fs) return e;
+    const msg = String(e?.message || e || ''), code = e?.code;
+    let c = 'unknown';
+    if (msg.includes('fs_conflict') || code === '40001' || code === '40P01') c = 'aborted';
+    else if (msg.includes('fs_not_found') || code === 'P0002') c = 'not-found';
+    else if (code === '42501' || /row-level security|permission denied|forbidden/i.test(msg)) c = 'permission-denied';
+    else if (/fetch|network|timeout/i.test(msg) || e?.name === 'TypeError') c = 'unavailable';
+    return Object.assign(new Error(msg || c), { code: c, __fs: true });
+  };
+
+  /* ---------- مقدارها ---------- */
+  class Timestamp {
+    constructor(ms) { this._ms = ms; }
+    toMillis() { return this._ms; } toDate() { return new Date(this._ms); }
+    get seconds() { return Math.floor(this._ms / 1000); } get nanoseconds() { return (this._ms % 1000) * 1e6; }
+    valueOf() { return this._ms; }
+    static now() { return new Timestamp(Date.now()); } static fromMillis(m) { return new Timestamp(m); } static fromDate(d) { return new Timestamp(d.getTime()); }
+  }
+  class Sentinel { constructor(j) { this.j = j; } }
+  class FieldPath { constructor(...s) { this.s = s.map(String); } }
+  const enc = v => {
+    if (v === undefined) return undefined;
+    if (v instanceof Sentinel) return v.j;
+    if (v instanceof Timestamp) return { __t: v._ms };
+    if (v instanceof Date) return { __t: v.getTime() };
+    if (Array.isArray(v)) return v.map(x => { const y = enc(x); return y === undefined ? null : y; });
+    if (v && typeof v === 'object') { const o = {}; for (const k of Object.keys(v)) { const x = enc(v[k]); if (x !== undefined) o[k] = x; } return o; }
+    return v;
+  };
+  const dec = v => {
+    if (Array.isArray(v)) return v.map(dec);
+    if (v && typeof v === 'object') {
+      if (typeof v.__t === 'number' && Object.keys(v).length === 1) return new Timestamp(v.__t);
+      const o = {}; for (const k of Object.keys(v)) o[k] = dec(v[k]); return o;
+    }
+    return v;
+  };
+  const serverTimestamp = () => new Sentinel({ __op: 'ts' });
+  const increment = n => new Sentinel({ __op: 'inc', n });
+  const deleteField = () => new Sentinel({ __op: 'del' });
+  const arrayUnion = (...v) => new Sentinel({ __op: 'union', v: v.map(enc) });
+  const arrayRemove = (...v) => new Sentinel({ __op: 'rm', v: v.map(enc) });
+
+  /* ---------- ارجاع‌ها و کوئری ---------- */
+  class DocRef { constructor(path) { this.path = path; this.parent = parentOf(path); this.id = path.slice(path.lastIndexOf('/') + 1); this.type = 'document'; } }
+  class ColRef { constructor(path) { this.path = path; this.id = path.slice(path.lastIndexOf('/') + 1); this.type = 'collection'; } }
+  const collection = (_db, ...p) => new ColRef(p.join('/'));
+  const doc = (base, ...p) => base instanceof ColRef ? new DocRef(base.path + '/' + (p.length ? p.join('/') : autoId())) : new DocRef(p.join('/'));
+  const where = (f, op, v) => ({ t: 'where', f, op, v });
+  const orderBy = (f, d = 'asc') => ({ t: 'order', f, d });
+  const limitToLast = n => ({ t: 'last', n });
+  const limit = n => ({ t: 'first', n });
+  const query = (col, ...cons) => {
+    const q = { isQuery: true, col, conds: [], order: null, desc: false, n: null, last: false };
+    for (const c of cons) {
+      if (c.t === 'where') q.conds.push(c);
+      else if (c.t === 'order') { q.order = c.f; q.desc = c.d === 'desc'; }
+      else if (c.t === 'last') { q.n = c.n; q.last = true; }
+      else if (c.t === 'first') { q.n = c.n; q.last = false; }
+    }
+    return q;
+  };
+  const asQuery = x => x.isQuery ? x : query(x);
+  const whereJson = q => {
+    const o = {};
+    for (const c of q.conds) {
+      const v = enc(c.v);
+      if (c.op === '==') o[c.f] = v; else if (c.op === 'array-contains') o[c.f] = [v];
+      else throw fsErr(new Error('unsupported where operator: ' + c.op));
+    }
+    return o;
+  };
+  const jeq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const matches = (data, q) => q.conds.every(c => { const x = data?.[c.f], v = enc(c.v); return c.op === '==' ? jeq(x, v) : Array.isArray(x) && x.some(y => jeq(y, v)); });
+  const skey = (d, f) => { const x = d?.[f]; return typeof x === 'number' ? x : (x && typeof x === 'object' && typeof x.__t === 'number') ? x.__t : null; };
+  const cmpOf = q => (a, b) => {
+    if (q.order) {
+      const x = skey(a.data, q.order), y = skey(b.data, q.order);
+      if (x !== y) { if (x === null) return q.desc ? -1 : 1; if (y === null) return q.desc ? 1 : -1; return q.desc ? y - x : x - y; }
+    }
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  };
+  const viewOf = L => {
+    let a = [...L.state.values()];
+    if (!L.isDoc) { a.sort(cmpOf(L.q)); if (L.q.n != null) a = L.q.last ? a.slice(-L.q.n) : a.slice(0, L.q.n); }
+    return a;
+  };
+
+  /* ---------- اسنپ‌شات‌ها ---------- */
+  class DocSnap {
+    constructor(path, data, exists, rev) { this.ref = new DocRef(path); this.id = this.ref.id; this._d = data; this._e = exists; this.rev = rev; this.metadata = { fromCache: false, hasPendingWrites: false }; }
+    exists() { return this._e; }
+    data() { return this._e ? dec(this._d) : undefined; }
+    get(f) { return this.data()?.[f]; }
+  }
+  class QuerySnap {
+    constructor(entries, changes) {
+      this.docs = entries.map(e => new DocSnap(e.path, e.data, true, e.rev));
+      this.size = this.docs.length; this.empty = !this.size;
+      this._c = changes || this.docs.map((d, i) => ({ type: 'added', doc: d, oldIndex: -1, newIndex: i }));
+      this.metadata = { fromCache: false, hasPendingWrites: false };
+    }
+    forEach(f, t) { this.docs.forEach(f, t); }
+    docChanges() { return this._c; }
+  }
+
+  /* ---------- خواندن ---------- */
+  async function fetchRow(path) {
+    const { data, error } = await supa.from('docs').select('path,id,data,rev').eq('path', path).maybeSingle();
+    if (error) throw fsErr(error);
+    return data;
+  }
+  async function fetchQuery(q) {
+    const { data, error } = await supa.rpc('fs_query', { p_parent: q.col.path, p_where: whereJson(q), p_order: q.order, p_desc: q.last ? !q.desc : q.desc, p_limit: q.n });
+    if (error) throw fsErr(error);
+    const rows = data || [];
+    return q.last ? rows.slice().reverse() : rows;
+  }
+  const getDoc = async ref => { const r = await fetchRow(ref.path); return new DocSnap(ref.path, r?.data, !!r, r ? Number(r.rev) : 0); };
+  const getDocs = async target => { const q = asQuery(target), rows = await fetchQuery(q); return new QuerySnap(rows.map(r => ({ path: r.path, id: r.id, data: r.data, rev: Number(r.rev) }))); };
+
+  /* ---------- نوشتن ---------- */
+  async function commit(ops, checks = []) {
+    const { data, error } = await supa.rpc('fs_commit', { p_ops: ops, p_checks: checks });
+    if (error) throw fsErr(error);
+    (data || []).forEach(r => {
+      if (r.deleted) dispatch({ path: r.path, parent: r.parent, id: r.id, deleted: true });
+      else if (r.data) dispatch({ path: r.path, parent: r.parent, id: r.id, data: r.data, rev: Number(r.rev) });
+    });
+    return data;
+  }
+  const opSet = (ref, data, o) => ({ k: 'set', path: ref.path, data: enc(data), merge: !!(o && (o.merge || o.mergeFields)) });
+  const toFields = args => {
+    const out = [];
+    if (args.length === 1 && args[0] && typeof args[0] === 'object' && !(args[0] instanceof FieldPath)) {
+      for (const k of Object.keys(args[0])) { const v = enc(args[0][k]); if (v !== undefined) out.push({ p: k.split('.'), v }); }
+    } else for (let i = 0; i < args.length; i += 2) {
+      const v = enc(args[i + 1]); if (v !== undefined) out.push({ p: args[i] instanceof FieldPath ? args[i].s : String(args[i]).split('.'), v });
+    }
+    return out;
+  };
+  const opUpdate = (ref, args) => ({ k: 'update', path: ref.path, fields: toFields(args) });
+  const opDelete = ref => ({ k: 'delete', path: ref.path });
+  const setDoc = async (ref, data, o) => { await commit([opSet(ref, data, o)]); };
+  const updateDoc = async (ref, ...args) => { await commit([opUpdate(ref, args)]); };
+  const deleteDoc = async ref => { await commit([opDelete(ref)]); };
+  const addDoc = async (col, data) => { const ref = new DocRef(col.path + '/' + autoId()); await commit([opSet(ref, data)]); return ref; };
+  const writeBatch = () => {
+    const ops = [];
+    const b = {
+      set(ref, d, o) { ops.push(opSet(ref, d, o)); return b; },
+      update(ref, ...a) { ops.push(opUpdate(ref, a)); return b; },
+      delete(ref) { ops.push(opDelete(ref)); return b; },
+      commit: async () => { if (ops.length) await commit(ops.splice(0)); }
+    };
+    return b;
+  };
+  async function runTransaction(_db, fn) {
+    for (let attempt = 0; ; attempt++) {
+      const reads = new Map(), ops = [];
+      const tx = {
+        async get(ref) { const r = await fetchRow(ref.path); reads.set(ref.path, r ? Number(r.rev) : 0); return new DocSnap(ref.path, r?.data, !!r, r ? Number(r.rev) : 0); },
+        set(ref, d, o) { ops.push(opSet(ref, d, o)); return tx; },
+        update(ref, ...a) { ops.push(opUpdate(ref, a)); return tx; },
+        delete(ref) { ops.push(opDelete(ref)); return tx; }
+      };
+      const result = await fn(tx);
+      if (!ops.length) return result;
+      const checks = [...reads].map(([path, rev]) => ({ path, rev })).sort((a, b) => a.path < b.path ? -1 : 1);
+      try { await commit(ops, checks); return result; }
+      catch (e) { if (e.code === 'aborted' && attempt < 6) { await sleep(60 * (attempt + 1) + Math.random() * 80); continue; } throw e; }
+    }
+  }
+
+  /* ---------- ریل‌تایم ---------- */
+  let chSeq = 0, delCh = null;
+  const listeners = new Set();
+  const rowEv = r => ({ path: r.path, parent: parentOf(r.path), id: r.id, data: r.data, rev: Number(r.rev) });
+  const dispatch = ev => { for (const L of [...listeners]) handle(L, ev); };
+  function ensureDelCh() {
+    if (delCh) return;
+    delCh = supa.channel('fs-del-' + (++chSeq)).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'docs' }, p => {
+      const path = p.old?.path; if (path) dispatch({ path, parent: parentOf(path), id: path.slice(path.lastIndexOf('/') + 1), deleted: true });
+    }).subscribe();
+  }
+  function dropDelCh() { if (delCh && !listeners.size) { supa.removeChannel(delCh); delCh = null; } }
+  function openChan(L) {
+    const filter = L.isDoc ? 'path=eq.' + L.ref.path : 'parent=eq.' + L.q.col.path;
+    let first = true;
+    const h = p => {
+      const r = p.new; if (!r || !r.path) return;
+      if (p.errors || r.data === undefined) fetchRow(r.path).then(row => row && handle(L, rowEv(row))).catch(() => {});
+      else handle(L, { path: r.path, parent: r.parent || parentOf(r.path), id: r.id, data: r.data, rev: Number(r.rev) });
+    };
+    L.ch = supa.channel('fs-' + (++chSeq))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'docs', filter }, h)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'docs', filter }, h)
+      .subscribe(st => { if (st === 'SUBSCRIBED') { if (!first && !L.closed) resync(L); first = false; } });
+  }
+  function handle(L, ev) {
+    if (!ev || L.closed) return;
+    if (!L.ready) { L.buf.push(ev); return; }
+    if (L.isDoc ? ev.path !== L.ref.path : ev.parent !== L.q.col.path) return;
+    if (ev.deleted) { if (!L.state.delete(ev.path)) return; }
+    else {
+      const cur = L.state.get(ev.path);
+      if (cur && cur.rev >= ev.rev) return;
+      if (ev.data == null) { fetchRow(ev.path).then(row => row && handle(L, rowEv(row))).catch(() => {}); return; }
+      if (L.isDoc || matches(ev.data, L.q)) L.state.set(ev.path, { path: ev.path, id: ev.id, data: ev.data, rev: ev.rev });
+      else if (!L.state.delete(ev.path)) return;
+    }
+    schedule(L);
+  }
+  const schedule = L => { if (L.tm) return; L.tm = setTimeout(() => { L.tm = null; emit(L); }, 0); };
+  function emit(L) {
+    if (L.closed || !L.ready) return;
+    const view = viewOf(L), next = new Map(), changes = [];
+    view.forEach((e, i) => {
+      next.set(e.path, e); const o = L.out.get(e.path);
+      if (!o) changes.push({ type: 'added', e, i }); else if (o.rev !== e.rev) changes.push({ type: 'modified', e, i });
+    });
+    for (const [p, o] of L.out) if (!next.has(p)) changes.push({ type: 'removed', e: o, i: -1 });
+    if (L.sent && !changes.length) return;
+    L.sent = true; L.out = next; L.state = new Map(view.map(e => [e.path, e]));
+    try {
+      if (L.isDoc) { const e = view[0]; L.next(new DocSnap(L.ref.path, e?.data, !!e, e?.rev || 0)); }
+      else L.next(new QuerySnap(view, changes.map(c => ({ type: c.type, doc: new DocSnap(c.e.path, c.e.data, true, c.e.rev), oldIndex: -1, newIndex: c.i }))));
+    } catch (e) { console.error(e); }
+  }
+  async function resync(L, firstTime) {
+    if (L.closed) return;
+    try {
+      const rows = L.isDoc ? (r => r ? [r] : [])(await fetchRow(L.ref.path)) : await fetchQuery(L.q);
+      if (L.closed) return;
+      L.state = new Map(rows.map(r => [r.path, { path: r.path, id: r.id, data: r.data, rev: Number(r.rev) }]));
+      const wasReady = L.ready; L.ready = true;
+      const buf = L.buf; L.buf = []; buf.forEach(ev => handle(L, ev));
+      emit(L);
+      void wasReady;
+    } catch (e) { if (firstTime && !L.closed && L.error) L.error(fsErr(e)); }
+  }
+  function onSnapshot(target, ...a) {
+    let next, error;
+    if (typeof a[0] === 'function') { next = a[0]; error = a[1]; }
+    else if (a[0] && typeof a[0].next === 'function') { next = a[0].next.bind(a[0]); error = a[0].error && a[0].error.bind(a[0]); }
+    else { next = a[1]; error = a[2]; }
+    const isDoc = target instanceof DocRef;
+    const L = { isDoc, ref: isDoc ? target : null, q: isDoc ? null : asQuery(target), next, error, state: new Map(), out: new Map(), buf: [], ready: false, sent: false, closed: false, tm: null, ch: null };
+    listeners.add(L); ensureDelCh(); openChan(L); resync(L, true);
+    return () => { L.closed = true; listeners.delete(L); clearTimeout(L.tm); if (L.ch) supa.removeChannel(L.ch); dropDelCh(); };
+  }
+  const disableNetwork = async () => { try { supa.realtime.disconnect(); } catch { } };
+  const enableNetwork = async () => {
+    try { supa.realtime.connect(); } catch { }
+    if (delCh) { supa.removeChannel(delCh); delCh = null; }
+    if (listeners.size) ensureDelCh();
+    for (const L of [...listeners]) { if (L.ch) supa.removeChannel(L.ch); openChan(L); resync(L, !L.ready); }
+  };
+
+  /* ---------- احراز هویت (شبیه Firebase Auth) ---------- */
+  const authErr = e => {
+    const m = String(e?.message || ''), c = e?.code || '', st = e?.status;
+    let code = 'auth/unknown';
+    if (c === 'user_already_exists' || /already registered|already been registered/i.test(m)) code = 'auth/email-already-in-use';
+    else if (c === 'invalid_credentials' || /invalid login credentials/i.test(m)) code = 'auth/invalid-credential';
+    else if (c === 'weak_password' || /password should be|weak password/i.test(m)) code = 'auth/weak-password';
+    else if (c === 'email_address_invalid' || /invalid email|unable to validate email/i.test(m)) code = 'auth/invalid-email';
+    else if (c === 'email_not_confirmed' || /not confirmed/i.test(m)) code = 'auth/email-not-confirmed';
+    else if (c === 'signup_disabled' || /signups not allowed|signup.*disabled/i.test(m)) code = 'auth/operation-not-allowed';
+    else if (c === 'user_banned') code = 'auth/user-disabled';
+    else if (st === 429 || /rate limit|too many/i.test(c + m)) code = 'auth/too-many-requests';
+    else if (/fetch|network/i.test(m) || e?.name === 'AuthRetryableFetchError') code = 'auth/network-request-failed';
+    return Object.assign(new Error(m || code), { code });
+  };
+  let curUser = null;
+  const mkUser = u => u ? {
+    uid: u.id, email: u.email, displayName: u.user_metadata?.displayName || null,
+    delete: async () => { const { error } = await supa.rpc('fs_delete_me'); if (error) throw authErr(error); await supa.auth.signOut({ scope: 'local' }); }
+  } : null;
+  const auth = { get currentUser() { return curUser; } };
+  const getAuth = () => auth;
+  const createUserWithEmailAndPassword = async (_a, email, password) => {
+    const { data, error } = await supa.auth.signUp({ email, password });
+    if (error) throw authErr(error);
+    if (!data.session) throw Object.assign(new Error('email confirmation is on'), { code: 'auth/email-not-confirmed' });
+    curUser = mkUser(data.user); return { user: curUser };
+  };
+  const signInWithEmailAndPassword = async (_a, email, password) => {
+    const { data, error } = await supa.auth.signInWithPassword({ email, password });
+    if (error) throw authErr(error);
+    curUser = mkUser(data.user); return { user: curUser };
+  };
+  const signOut = async () => { const { error } = await supa.auth.signOut({ scope: 'local' }); if (error) throw authErr(error); };
+  const onAuthStateChanged = (_a, cb) => {
+    const { data } = supa.auth.onAuthStateChange((ev, session) => {
+      if (!['INITIAL_SESSION', 'SIGNED_IN', 'SIGNED_OUT'].includes(ev)) return;
+      curUser = mkUser(session?.user);
+      const u = curUser;
+      setTimeout(() => cb(u), 0);     // بیرون از قفل Supabase تا بن‌بست نشود
+    });
+    return () => data.subscription.unsubscribe();
+  };
+  const EmailAuthProvider = { credential: (email, password) => ({ email, password }) };
+  const reauthenticateWithCredential = async (_u, cred) => { const { error } = await supa.auth.signInWithPassword(cred); if (error) throw authErr(error); };
+  const updatePassword = async (_u, password) => { const { error } = await supa.auth.updateUser({ password }); if (error) throw authErr(error); };
+  const updateProfile = async (_u, p) => { const { error } = await supa.auth.updateUser({ data: p }); if (error) throw authErr(error); };
+
+  return {
+    Timestamp, FieldPath, DocRef, ColRef,
+    initializeApp: () => ({}), getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+    setPersistence: async () => { }, indexedDBLocalPersistence: 'idb', browserLocalPersistence: 'local',
+    sendEmailVerification: async () => { }, sendPasswordResetEmail: async () => { },
+    EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateProfile,
+    getFirestore: () => ({}), initializeFirestore: () => ({}), persistentLocalCache: () => ({}), persistentMultipleTabManager: () => ({}),
+    arrayUnion, arrayRemove, doc, getDoc, getDocs, getDocFromServer: getDoc, writeBatch, deleteDoc, setDoc, updateDoc, addDoc,
+    collection, query, where, orderBy, limitToLast, limit, onSnapshot, serverTimestamp, runTransaction, deleteField, increment,
+    disableNetwork, enableNetwork
+  };
+}
+
+const SB_SRC = ['https://esm.sh/@supabase/supabase-js@2', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'];
+let supa = null;
+for (const u of SB_SRC) {
+  try {
+    const m = await import(u);
+    /* storageKey جدا → نشست پنل با نشست بازی قاطی نمی‌شود */
+    supa = m.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'prochat-admin-auth' }, realtime: { params: { eventsPerSecond: 30 } } });
+    break;
+  } catch (e) { /* منبع بعدی */ }
+}
+if (!supa) { document.getElementById('boot').innerHTML = 'بارگذاری ناموفق بود 😕<br>فیلترشکن را روشن کن و صفحه را رفرش کن.'; throw new Error('sdk'); }
+const SB = __makeShim(supa);
+const { initializeApp, getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, initializeFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, orderBy, limit, limitToLast, onSnapshot, writeBatch, runTransaction, serverTimestamp, increment, arrayUnion, arrayRemove, deleteField } = SB;
+
 const RAR = {
   common: { n: 'معمولی', c: '#9aa3b5', g: '154,163,181' },
   rare: { n: 'کمیاب', c: '#4da3ff', g: '77,163,255' },
@@ -173,10 +500,9 @@ const SYMBOLS = [
   { e: '💠', n: 'نگین', p: 0.6 }, { e: '🎀', n: 'پاپیون', p: 1.1 }, { e: '🌀', n: 'گرداب', p: 0.7 }, { e: '✨', n: 'درخشش', p: 1.5 }
 ];
 
-/* اپ جداگانه با نام «prochat-admin» → نشست ورود پنل با نشست بازی قاطی نمی‌شود */
-const app = initializeApp(firebaseConfig, 'prochat-admin');
+const app = initializeApp({});
 const auth = getAuth(app);
-const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+const db = initializeFirestore(app, {});
 const ADMIN_EMAIL = 'hakem@prochat.app';
 
 const $ = id => document.getElementById(id);
@@ -203,8 +529,8 @@ const AUTH_ERR = {
   'auth/invalid-credential': 'آیدی یا رمز اشتباه است.', 'auth/wrong-password': 'رمز اشتباه است.', 'auth/user-not-found': 'این آیدی وجود ندارد.',
   'auth/too-many-requests': 'تلاش زیاد بود؛ چند دقیقه بعد دوباره امتحان کن.',
   'auth/network-request-failed': 'اینترنت یا فیلترشکن مشکل دارد؛ فیلترشکن را عوض کن و دوباره امتحان کن.',
-  'auth/unauthorized-domain': 'این دامنه در فایربیس مجاز نیست: Authentication ← Settings ← Authorized domains ← mmdferown-png.github.io را اضافه کن.',
-  'auth/invalid-api-key': 'کلید فایربیس درست نیست.', 'auth/operation-not-allowed': 'ورود با ایمیل/رمز در فایربیس فعال نیست.'
+  'auth/unauthorized-domain': 'این دامنه مجاز نیست.',
+  'auth/invalid-api-key': 'کلید Supabase درست نیست.', 'auth/operation-not-allowed': 'ورود با ایمیل/رمز در Supabase فعال نیست.'
 };
 $('lgBtn').onclick = async () => {
   const id = $('lgId').value.trim().toLowerCase(), pw = $('lgPw').value; $('err').textContent = '';
@@ -230,7 +556,7 @@ onAuthStateChanged(auth, u => {
 /* ====== داده‌ها (زنده) ====== */
 const S = { users: {}, rooms: {}, market: [], reports: [], sugg: [], quests: [], bot: { on: true, filter: true, autoMute: true, welcome: true, words: [], replies: [] }, ready: {} };
 let warned = false;
-const fail = e => { console.error(e); if (!warned) { warned = true; toast('خواندن داده ناموفق بود؛ رولز Firestore (نسخه 1.5.0) را منتشر کرده‌ای؟'); } };
+const fail = e => { console.error(e); if (!warned) { warned = true; toast('خواندن داده ناموفق بود؛ سیاست‌های دسترسی (RLS) دیتابیس Supabase را اجرا کرده‌ای؟'); } };
 function listen() {
   const L = [], mark = k => { S.ready[k] = true; render(); };
   L.push(onSnapshot(collection(db, 'users'), sn => { S.users = {}; sn.forEach(d => { S.users[d.id] = { uid: d.id, ...d.data() }; }); mark('users'); }, fail));
