@@ -1966,7 +1966,7 @@ function openRoom(id) {
   $('inMsg').value = drafts[id] || ''; $('emojiPanel').classList.add('hidden');
   pushChatState(); $('app').classList.add('chat'); applyWall(); attachToggle(false);
   unsubMsgs?.();
-  unsubMsgs = onSnapshot(query(collection(db, 'rooms', id, 'msgs'), orderBy('createdAt'), limitToLast(300)), s => {
+  unsubMsgs = onSnapshot(query(collection(db, 'rooms', id, 'msgs'), orderBy('createdAt'), limitToLast(id === 'public' ? 30 : 300)), s => {
     const atBottom = $('msgs').scrollHeight - $('msgs').scrollTop - $('msgs').clientHeight < 120;
     msgs = s.docs.map(d => ({ id: d.id, ...d.data() }));
     renderMsgs(atBottom);
@@ -3564,7 +3564,7 @@ async function photoClick(e) {
 }
 
 /* ======================= v9: چک آپدیت خودکار ======================= */
-const CURRENT_VERSION = "1.10.0";
+const CURRENT_VERSION = "1.10.1";
 function showUpdateBanner(data) {
   if (document.getElementById('updBanner')) return;
   const b = document.createElement('div'); b.id = 'updBanner';
