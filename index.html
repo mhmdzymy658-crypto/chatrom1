@@ -4208,9 +4208,9 @@ function dgHub() {
   $('qzTitle').textContent = '🎮 بازی‌ها'; $('qzCoins').textContent = '🪙 ' + fa(coinsOf(me));
   $('qzBody').innerHTML = `<div id="dgResume"></div>
     <div class="dgx-cups" id="dgLg" style="cursor:pointer">🏆 جام‌های تو: <b>${fa(cupsOf(me))}</b> • ${leagueOf(me).e} لیگ ${esc(leagueOf(me).n)} ‹</div>
-    <button class="qz-hc" data-go="score"><span class="ic">🎨</span><span><b>نقاشی امتیازی (۴ نفره)</b><small>نوبتی نقاشی بکش، بقیه حدس بزنن • ۲۰ ثانیه</small></span><span class="ar">‹</span></button>
-    <button class="qz-hc" data-go="elim"><span class="ic">💀</span><span><b>نقاشی حذفی (۶ نفره)</b><small>ربات می‌کشه • دو جون داری • آخرین بازمانده برنده‌ست</small></span><span class="ar">‹</span></button>
-    <button class="qz-hc" data-go="duel"><span class="ic">⚔️</span><span><b>دوئل نقاشی (۲ نفره)</b><small>نوبتی نقاشی بکش، حریف حدس بزنه • همان امتیازدهی</small></span><span class="ar">‹</span></button>
+    <button class="qz-hc" data-go="score"><span class="ic"><img src="score.png" style="width:100%;height:100%;object-fit:contain;border-radius:14px;" alt=""></span><span><b>نقاشی امتیازی (۴ نفره)</b><small>نوبتی نقاشی بکش، بقیه حدس بزنن • ۲۰ ثانیه</small></span><span class="ar">‹</span></button>
+    <button class="qz-hc" data-go="elim"><span class="ic"><img src="elim.png" style="width:100%;height:100%;object-fit:contain;border-radius:14px;" alt=""></span><span><b>نقاشی حذفی (۶ نفره)</b><small>ربات می‌کشه • دو جون داری • آخرین بازمانده برنده‌ست</small></span><span class="ar">‹</span></button>
+    <button class="qz-hc" data-go="duel"><span class="ic"><img src="duel.png" style="width:100%;height:100%;object-fit:contain;border-radius:14px;" alt=""></span><span><b>دوئل نقاشی (۲ نفره)</b><small>نوبتی نقاشی بکش، حریف حدس بزنه • همان امتیازدهی</small></span><span class="ar">‹</span></button>
     <button class="qz-hc" data-go="board"><span class="ic">🏆</span><span><b>برترین‌ها</b><small>بهترین نقاش‌ها و حدس‌زن‌ها</small></span><span class="ar">‹</span></button>
     <button class="btn ghost" id="dgRules" style="margin-top:4px">؟ قوانین و امتیازدهی</button>`;
   $('qzBody').onclick = e => { if (e.target.closest('#dgLg')) return showLeagues(me.uid); const b = e.target.closest('[data-go]'); if (!b) return; b.dataset.go === 'board' ? dgBoard() : dgSetup(b.dataset.go); };
