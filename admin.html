@@ -557,7 +557,7 @@ onAuthStateChanged(auth, u => {
 });
 
 /* ====== داده‌ها (زنده) ====== */
-const S = { users: {}, rooms: {}, market: [], reports: [], sugg: [], quests: [], bot: { on: true, filter: true, autoMute: true, welcome: true, words: [], replies: [] }, ready: {} };
+const S = { pics: {}, mlog: [], users: {}, rooms: {}, market: [], reports: [], sugg: [], quests: [], bot: { on: true, filter: true, autoMute: true, welcome: true, words: [], replies: [] }, ready: {} };
 let warned = false;
 const fail = e => { console.error(e); if (!warned) { warned = true; toast('خواندن داده ناموفق بود؛ سیاست‌های دسترسی (RLS) دیتابیس Supabase را اجرا کرده‌ای؟'); } };
 function listen() {
@@ -568,17 +568,27 @@ function listen() {
   L.push(onSnapshot(collection(db, 'reports'), sn => { S.reports = sn.docs.map(d => ({ id: d.id, ...d.data() })); mark('reports'); }, fail));
   L.push(onSnapshot(collection(db, 'suggestions'), sn => { S.sugg = sn.docs.map(d => ({ id: d.id, ...d.data() })); mark('sugg'); }, fail));
   L.push(onSnapshot(collection(db, 'questions'), sn => { S.quests = sn.docs.map(d => ({ id: d.id, ...d.data() })); mark('quests'); }, fail));
+  ['public', 'channel'].forEach(k => L.push(onSnapshot(doc(db, 'rooms', k), sn => { S.pics[k] = sn.exists() ? (sn.data().photo || '') : ''; mark('pic_' + k); }, fail)));
   L.push(onSnapshot(doc(db, 'settings', 'bot'), sn => { S.bot = { on: true, filter: true, autoMute: true, welcome: true, words: [], replies: [], ...(sn.exists() ? sn.data() : {}) }; mark('bot'); }, fail));
+  loadModLog();
+  const ch = supa.channel('modlog-' + Date.now()).on('postgres_changes', { event: '*', schema: 'public', table: 'mod_log' }, () => loadModLog()).subscribe(), iv = setInterval(loadModLog, 30000);
+  L.push(() => { clearInterval(iv); try { supa.removeChannel(ch); } catch (e) { /* بی‌صدا */ } });
   return () => L.forEach(f => f());
+}
+async function loadModLog() {
+  try {
+    const { data, error } = await supa.from('mod_log').select('*').order('at', { ascending: false }).limit(200);
+    if (error) throw error; S.mlog = data || []; S.ready.mlog = true; render();
+  } catch (e) { if (!S.ready.mlogErr) { S.ready.mlogErr = true; toast('گزارش ناظرها خوانده نشد؛ فایل mod-update.sql رو اجرا کردی؟'); } }
 }
 
 /* ====== تب‌ها ====== */
 let tab = 'dash', chUnsub = null;
-const TABS = [['dash', '📊', 'داشبورد'], ['users', '👥', 'کاربران'], ['clans', '🏰', 'کلن‌ها'], ['deals', '🤝', 'معامله‌ها'], ['reports', '🚩', 'گزارش‌ها'], ['gall', '🎨', 'نقاشی‌ها'], ['sugg', '💡', 'پیشنهادها'], ['photos', '🖼', 'عکس‌ها'], ['bot', '🤖', 'ربات'], ['channel', '📣', 'کانال']];
+const TABS = [['dash', '📊', 'داشبورد'], ['users', '👥', 'کاربران'], ['clans', '🏰', 'کلن‌ها'], ['deals', '🤝', 'معامله‌ها'], ['reports', '🚩', 'گزارش‌ها'], ['modlog', '🛡', 'ناظرها'], ['gall', '🎨', 'نقاشی‌ها'], ['sugg', '💡', 'پیشنهادها'], ['photos', '🖼', 'عکس‌ها'], ['bot', '🤖', 'ربات'], ['channel', '📣', 'کانال']];
 const dealRooms = () => Object.values(S.rooms).filter(r => r.deal);
 const clanRooms = () => Object.values(S.rooms).filter(r => !r.deal);
 const pendingPhotos = () => Object.values(S.users).filter(u => u.photoPending);
-const badge = k => ({ reports: S.reports.filter(r => r.status === 'open').length, sugg: S.sugg.filter(x => x.status === 'new').length, photos: pendingPhotos().length }[k] || 0);
+const badge = k => ({ modlog: S.mlog.filter(x => !x.reviewed).length, reports: S.reports.filter(r => r.status === 'open').length, sugg: S.sugg.filter(x => x.status === 'new').length, photos: pendingPhotos().length }[k] || 0);
 function drawTabs() {
   $('tabs').innerHTML = TABS.map(([k, i, t]) => `<button data-t="${k}" class="${k === tab ? 'on' : ''}">${i} ${t}${badge(k) ? `<i>${fa(badge(k))}</i>` : ''}</button>`).join('');
 }
@@ -591,7 +601,7 @@ document.addEventListener('focusout', () => { if (pending) { pending = false; se
 function draw() {
   if (!ADMIN) return;
   const v = $('view');
-  ({ dash, users: usersView, clans: clansView, deals: dealsView, reports: reportsView, gall: gallView, sugg: suggView, photos: photosView, bot: botView, channel: channelView }[tab])(v);
+  ({ dash, users: usersView, clans: clansView, deals: dealsView, reports: reportsView, modlog: modlogView, gall: gallView, sugg: suggView, photos: photosView, bot: botView, channel: channelView }[tab])(v);
 }
 
 /* ====== داشبورد ====== */
@@ -636,7 +646,7 @@ function userModal(uid) {
     if (a === 'mod') await uAct(uid, { mod: !u.mod }, u.mod ? 'ناظری لغو شد' : '🛡 ناظر شد');
     if (a === 'ban') await uAct(uid, { banned: !u.banned }, u.banned ? 'رفع مسدودی شد' : 'مسدود شد');
     if (a === 'warn') await uAct(uid, { warns: 0 }, 'اخطارها صفر شد');
-    if (a === 'photo') await uAct(uid, { photo: '', photoPending: '' }, 'عکس پروفایل حذف شد');
+    if (a === 'photo') await uAct(uid, { photo: '', photoPending: '', gallery: [], photoMode: '' }, 'عکس پروفایل حذف شد');
     if (a === 'music') { await deleteDoc(doc(db, 'music', uid)).catch(() => {}); await uAct(uid, { musicTitle: '' }, 'موسیقی حذف شد'); }
     if (a === 'mute') { if (isMuted(u)) return uAct(uid, { mutedUntil: 0, warns: 0 }, '🔊 سکوت برداشته شد'); $('uSub').innerHTML = `<h3 class="sec">مدت سکوت</h3><div class="btns">${[['۱۰ دقیقه', 10], ['۱ ساعت', 60], ['۱ روز', 1440], ['۱ هفته', 10080], ['دائم', 0]].map(([l, m]) => `<button class="btn sm ghost" data-mm="${m}">${l}</button>`).join('')}</div>`; $('uSub').onclick = guard(async ev => { const b = ev.target.closest('[data-mm]'); if (!b) return; const m = +b.dataset.mm; await uAct(uid, { mutedUntil: m ? Date.now() + m * 60000 : 9999999999999, warns: 0 }, '🔇 ساکت شد'); closeModal(); }); }
     if (a === 'coin') { $('uSub').innerHTML = `<h3 class="sec">🪙 سکه (عدد منفی = کم کردن)</h3><div class="btns">${[100, 500, 1000, 5000].map(n => `<button class="btn sm ghost" data-cn="${n}">+${fa(n)}</button>`).join('')}</div><div class="field"><input id="cAmt" type="number" dir="ltr" placeholder="250"></div><button class="btn sm" data-cok="1">ثبت</button>`; $('uSub').onclick = guard(async ev => { const c = ev.target.closest('[data-cn]'); if (c) $('cAmt').value = c.dataset.cn; if (ev.target.closest('[data-cok]')) { const n = parseInt($('cAmt').value, 10); if (!n) return toast('عدد را وارد کن'); await uAct(uid, { bonus: increment(n) }, `${fa(n)} سکه ثبت شد ✅`); $('uSub').innerHTML = ''; } }); }
@@ -799,7 +809,7 @@ function suggView(v) {
 /* ====== عکس‌ها ====== */
 function photosView(v) {
   const p = pendingPhotos();
-  v.innerHTML = `<h3 class="sec">🖼 ${fa(p.length)} عکس منتظر تایید</h3>` + (p.map(u => `<div class="card"><div class="ph"><img src="${u.photoPending}" alt=""><div><b>${esc(u.name)}</b><div style="color:var(--mut)">${hid(u)}</div></div></div><div class="btns"><button class="btn" data-pa="${u.uid}">تایید ✓</button><button class="btn bad" data-pr="${u.uid}">رد ✕</button></div></div>`).join('') || '<p class="empty">عکسی در انتظار تایید نیست 🎉</p>');
+  v.innerHTML = `<h3 class="sec">🖼 ${fa(p.length)} عکس منتظر تایید</h3>` + (p.map(u => `<div class="card"><div class="ph"><img src="${u.photoPending}" alt=""><div><b>${esc(u.name)}</b>${u.photoMode === 'add' && u.photo ? '<span class="tag">➕ عکس اضافه (گالری)</span>' : ''}<div style="color:var(--mut)">${hid(u)}</div></div></div><div class="btns"><button class="btn" data-pa="${u.uid}">تایید ✓</button><button class="btn bad" data-pr="${u.uid}">رد ✕</button></div></div>`).join('') || '<p class="empty">عکسی در انتظار تایید نیست 🎉</p>');
 }
 
 /* ====== ربات ====== */
@@ -815,8 +825,21 @@ function botView(v) {
 }
 
 /* ====== کانال رسمی ====== */
+function picCard(k, title) {
+  const p = S.pics[k] || '';
+  return `<div class="row" style="cursor:default"><div class="av" style="width:54px;height:54px">${p ? `<img src="${p}" alt="">` : (k === 'public' ? '★' : '📣')}</div><div class="nm"><b>${title}</b><small>${p ? 'عکس گذاشته‌ای' : 'عکس پیش‌فرض'}</small></div><label class="btn sm" style="cursor:pointer">📷 انتخاب<input type="file" accept="image/*" data-pic="${k}" class="hidden"></label>${p ? `<button class="btn sm bad" data-picrm="${k}">حذف</button>` : ''}</div>`;
+}
+async function adminShrink(f, max = 256, q = .82) {
+  const url = URL.createObjectURL(f);
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
+    const s = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', q);
+  } finally { URL.revokeObjectURL(url); }
+}
 function channelView(v) {
-  v.innerHTML = `<div class="card"><h3 class="sec" style="margin-top:0">📣 اطلاعیه در «کانال رسمی پرو چت»</h3><textarea id="chTxt" rows="4" maxlength="600" placeholder="متن اطلاعیه…"></textarea><div class="btns"><button class="btn" id="chPost">ارسال به همه</button></div></div><h3 class="sec">آخرین پیام‌های کانال</h3><div id="chList"><p class="empty">در حال دریافت…</p></div>`;
+  v.innerHTML = `<h3 class="sec" style="margin-top:0">🖼 عکس چت روم و کانال (فقط تو می‌توانی عوض کنی)</h3>${picCard('public', 'چت روم عمومی')}${picCard('channel', 'کانال رسمی')}<div class="card"><h3 class="sec" style="margin-top:0">📣 اطلاعیه در «کانال رسمی پرو چت»</h3><textarea id="chTxt" rows="4" maxlength="600" placeholder="متن اطلاعیه…"></textarea><div class="btns"><button class="btn" id="chPost">ارسال به همه</button></div></div><h3 class="sec">آخرین پیام‌های کانال</h3><div id="chList"><p class="empty">در حال دریافت…</p></div>`;
   chUnsub?.();
   chUnsub = onSnapshot(query(collection(db, 'rooms', 'channel', 'msgs'), orderBy('createdAt'), limitToLast(20)), sn => {
     const el = $('chList'); if (!el) return;
@@ -830,11 +853,59 @@ async function postChannel(text) {
   await setDoc(doc(db, 'rooms', 'channel'), { last: { text: text.slice(0, 60), name: 'پرو چت', uid: ADMIN.uid, t }, unread, read: { [ADMIN.uid]: t } }, { merge: true });
 }
 
+
+/* ====== گزارش کار ناظرها ====== */
+const MA = { warn: ['⚠️ اخطار', 'tag'], mute: ['🔇 سکوت', 'tag'], ban: ['🚫 محرومیت', 'tag r'], unban: ['✅ رفع محرومیت', 'tag g'], unmute: ['🔊 رفع سکوت', 'tag g'], photo: ['🗑 حذف عکس پروفایل', 'tag r'], music: ['🎵 حذف موسیقی پروفایل', 'tag'] };
+const durText = m => m < 0 ? 'دائم' : !m ? '' : m < 60 ? fa(m) + ' دقیقه' : m < 1440 ? fa(Math.round(m / 60)) + ' ساعت' : fa(Math.round(m / 1440)) + ' روز';
+let mlBy = '';
+function modlogView(v) {
+  const all = S.mlog, L = mlBy ? all.filter(x => x.mod_uid === mlBy) : all, open = all.filter(x => !x.reviewed).length;
+  const t = x => new Date(x.at).getTime(), day = Date.now() - 864e5, hour = Date.now() - 36e5, week = Date.now() - 7 * 864e5;
+  const cnt = (uid, since) => all.filter(x => x.mod_uid === uid && t(x) > since).length;
+  const mods = Object.values(S.users).filter(u => u.mod);
+  const roster = mods.map(u => { const h = cnt(u.uid, hour), d = cnt(u.uid, day), w = cnt(u.uid, week);
+    return `<div class="row" style="cursor:default;${mlBy === u.uid ? 'border-color:var(--gold)' : ''}"><div class="av">${avatar(u)}</div><div class="nm"><b>${esc(u.name)}${h >= 10 ? '<span class="tag r">⚠️ فعالیت زیاد</span>' : ''}</b><small>${hid(u)} • امروز ${fa(d)} کار • هفته ${fa(w)} کار</small></div><button class="btn sm ghost" data-mlby="${u.uid}">${mlBy === u.uid ? 'همه' : 'کارها'}</button><button class="btn sm bad" data-mloff="${u.uid}">برکنار</button></div>`; }).join('')
+    || '<p class="empty" style="padding:14px">هنوز ناظری نداری. از تب «کاربران» روی کاربر بزن و «🛡 ناظر کردن» رو انتخاب کن.</p>';
+  v.innerHTML = `<h3 class="sec">🛡 ناظرهای فعال (${fa(mods.length)})</h3>${roster}
+    <h3 class="sec">📋 ${fa(open)} مورد دیده‌نشده از ${fa(all.length)}${mlBy ? ' — فقط یک ناظر' : ''}</h3>
+    ${open ? `<div class="btns" style="margin:0 0 8px"><button class="btn sm ghost" data-mlall="1">✓ همه را دیدم</button></div>` : ''}` +
+    (L.slice(0, 150).map(x => {
+      const [lb, cl] = MA[x.action] || [x.action, 'tag'], u = S.users[x.target_uid], undoable = ['ban', 'mute', 'warn'].includes(x.action);
+      const state = x.undone ? '<span class="tag">↩ برگردانده شد</span>' : x.action === 'ban' ? (u?.banned ? '<span class="tag r">هنوز محروم</span>' : '') : x.action === 'mute' ? (u && (u.mutedUntil || 0) > Date.now() ? '<span class="tag r">هنوز ساکت</span>' : '') : '';
+      return `<div class="card" ${x.reviewed ? 'style="opacity:.6"' : ''}><span class="${cl}">${lb}${x.action === 'mute' ? ' ' + durText(x.minutes) : ''}</span>${state}${x.reviewed ? '' : '<span class="tag g">جدید</span>'}
+        <p style="margin:8px 0;line-height:1.9"><b>${esc(x.mod_name || '؟')}</b> ← <b>${esc(x.target_name || '؟')}</b>${x.reason ? `<br>دلیل: «${esc(x.reason)}»` : ''}${x.note ? `<br><small style="color:var(--mut)">${esc(x.note)}</small>` : ''}</p>
+        <div style="color:var(--mut);font-size:.8rem">${ago(new Date(x.at).getTime())}</div>
+        <div class="btns"><button class="btn sm ghost" data-u="${x.target_uid}">👤 کاربر</button>${undoable && !x.undone ? `<button class="btn sm bad" data-mlundo="${x.id}">↩ برگردون</button>` : ''}${x.reviewed ? '' : `<button class="btn sm ghost" data-mlok="${x.id}">✓ دیدم</button>`}</div></div>`;
+    }).join('') || '<p class="empty">هنوز کاری ثبت نشده 🛡</p>');
+}
+async function mlReview(ids, undone) {
+  const { error } = await supa.rpc('mod_log_review', { p_ids: ids, p_undone: !!undone });
+  if (error) throw error; await loadModLog();
+}
+
 /* ====== کلیک‌ها (یک‌جا) ====== */
 const rep = id => S.reports.find(r => r.id === id);
+$('view').addEventListener('change', guard(async e => {
+  const inp = e.target.closest('[data-pic]'); if (!inp || !inp.files[0]) return;
+  const f = inp.files[0], k = inp.dataset.pic; inp.value = '';
+  const p = await adminShrink(f, 256, .82);
+  await setDoc(doc(db, 'rooms', k), { photo: p }, { merge: true }); toast('✅ عکس ' + (k === 'public' ? 'چت روم' : 'کانال') + ' عوض شد');
+}));
 $('view').addEventListener('click', guard(async e => {
   const t = e.target, q = sel => t.closest(sel);
   let b;
+  if ((b = q('[data-picrm]'))) { await setDoc(doc(db, 'rooms', b.dataset.picrm), { photo: '' }, { merge: true }); toast('عکس حذف شد'); return; }
+  if ((b = q('[data-mlby]'))) { mlBy = mlBy === b.dataset.mlby ? '' : b.dataset.mlby; draw(); return; }
+  if ((b = q('[data-mloff]'))) { const u = S.users[b.dataset.mloff]; if (u && confirm(`${u.name} از ناظری برکنار شود؟ دکمه‌ی ناظر از حسابش پاک می‌شود.`)) { await updateDoc(doc(db, 'users', u.uid), { mod: false }); toast('🛡 برکنار شد'); } return; }
+  if ((b = q('[data-mlok]'))) { await mlReview([+b.dataset.mlok]); return; }
+  if (q('[data-mlall]')) { const ids = S.mlog.filter(x => !x.reviewed).map(x => x.id); if (ids.length) await mlReview(ids); toast('همه دیده شد ✓'); return; }
+  if ((b = q('[data-mlundo]'))) {
+    const x = S.mlog.find(m => m.id === +b.dataset.mlundo), u = x && S.users[x.target_uid]; if (!x) return;
+    if (!u) return toast('کاربر پیدا نشد');
+    if (!confirm('این کار ناظر برگردانده بشه؟')) return;
+    const patch = x.action === 'ban' ? { banned: false } : x.action === 'mute' ? { mutedUntil: 0, warns: 0 } : { warns: Math.max(0, (u.warns || 0) - 1), ...(x.note ? { mutedUntil: 0 } : {}) };
+    await updateDoc(doc(db, 'users', u.uid), patch); await mlReview([x.id], true); toast('↩ برگردونده شد'); return;
+  }
   if ((b = q('[data-u]'))) return userModal(b.dataset.u);
   if ((b = q('[data-c]'))) return clanModal(b.dataset.c);
   if ((b = q('[data-chat]'))) return chatModal(b.dataset.chat, S.rooms[b.dataset.chat]?.name || 'گفتگو');
@@ -857,8 +928,8 @@ $('view').addEventListener('click', guard(async e => {
   if (q('[data-gref]')) { GALL = null; draw(); return; }
   if ((b = q('[data-sdone]'))) { await updateDoc(doc(db, 'suggestions', b.dataset.sdone), { status: 'done' }); return; }
   if ((b = q('[data-sdel]'))) { await deleteDoc(doc(db, 'suggestions', b.dataset.sdel)); return; }
-  if ((b = q('[data-pa]'))) { const u = S.users[b.dataset.pa]; await updateDoc(doc(db, 'users', u.uid), { photo: u.photoPending, photoPending: '' }); toast('عکس تایید شد ✅'); return; }
-  if ((b = q('[data-pr]'))) { await updateDoc(doc(db, 'users', b.dataset.pr), { photoPending: '', photoRejected: Date.now() }); toast('عکس رد شد'); return; }
+  if ((b = q('[data-pa]'))) { const u = S.users[b.dataset.pa]; await updateDoc(doc(db, 'users', u.uid), (u.photoMode === 'add' && u.photo) ? { gallery: [...(u.gallery || []), u.photoPending].slice(0, 3), photoPending: '', photoMode: '' } : { photo: u.photoPending, photoPending: '', photoMode: '' }); toast('عکس تایید شد ✅'); return; }
+  if ((b = q('[data-pr]'))) { await updateDoc(doc(db, 'users', b.dataset.pr), { photoPending: '', photoMode: '', photoRejected: Date.now() }); toast('عکس رد شد'); return; }
   if ((b = q('[data-tg]'))) return saveBot({ [b.dataset.tg]: S.bot[b.dataset.tg] === false });
   if ((b = q('[data-delw]'))) return saveBot({ words: (S.bot.words || []).filter((_, i) => i !== +b.dataset.delw) });
   if ((b = q('[data-delr]'))) return saveBot({ replies: (S.bot.replies || []).filter((_, i) => i !== +b.dataset.delr) });
