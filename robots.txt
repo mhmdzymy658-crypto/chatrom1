@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mhmdzymy658-crypto.github.io/chatrom1/sitemap.xml
