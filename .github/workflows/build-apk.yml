@@ -1,4 +1,4 @@
-name: Build Pro Chat Android APK
+name: Pro Chat Android Build
 
 on:
   workflow_dispatch:
@@ -8,49 +8,43 @@ permissions:
 
 jobs:
   build:
-    name: Build Pro Chat APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Get source code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Setup Java 21
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Verify project files
-        run: |
-          test -f package.json
-          test -f capacitor.config.json
-          test -d android
-          test -f android/gradlew
-          test -f www/index.html
-
-      - name: Install dependencies
+      - name: Install packages
         run: npm install --no-audit --no-fund
+
+      - name: Check Android project
+        run: |
+          test -f android/gradlew
+          test -f android/app/build.gradle
 
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Prepare Gradle
-        run: chmod +x android/gradlew
-
       - name: Build APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Pro-Chat-Android-APK
+          name: Pro-Chat-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          retention-days: 7
