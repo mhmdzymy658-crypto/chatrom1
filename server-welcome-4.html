@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#12082a">
+<title>پرو چت | بازی نقاشی آنلاین و چت</title>
+<meta name="description" content="نقاشی امتیازی، حذفی و دوئل؛ چت، لیگ، گیفت و فروشگاه — فارسی و موبایل‌فرست.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0620;--panel:rgba(36,18,72,.72);--line:rgba(167,139,250,.22);
+  --txt:#f5eefc;--mut:#a89bc8;--gold:#f5c542;--gold2:#ffd76a;--gold-d:#c99212;
+  --purple:#8b5cf6;--purple2:#a78bfa;--tg:#2AABEE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Vazirmatn,Tahoma,system-ui,sans-serif;
+  background:var(--bg);color:var(--txt);line-height:1.75;min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% -18%,rgba(168,85,247,.38),transparent 55%),
+    radial-gradient(ellipse 50% 45% at 100% 15%,rgba(56,189,248,.14),transparent 48%),
+    radial-gradient(ellipse 45% 40% at -5% 80%,rgba(244,114,182,.12),transparent 50%),
+    linear-gradient(160deg,#12061f 0%,#0c0418 40%,#080310 100%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35 0 0 0 0 0.22 0 0 0 0 0.5 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(1.5px 1.5px at 18% 22%,rgba(255,255,255,.28),transparent),
+    radial-gradient(1.2px 1.2px at 72% 38%,rgba(255,210,140,.35),transparent);
+  background-size:180px 180px,auto,auto;
+  mix-blend-mode:soft-light;
+}
+.granite-shine{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(125deg,transparent 40%,rgba(255,255,255,.03) 50%,transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(167,139,250,.08),transparent 60%);
+}
+a{color:var(--gold2);text-decoration:none}
+
+/* topbar */
+.topbar{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;
+  padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));
+  background:rgba(8,3,18,.88);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.brand{flex:1;display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem;color:var(--gold2);min-width:0}
+.logo-dot{
+  width:34px;height:34px;border-radius:10px;flex:none;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed);
+  display:grid;place-items:center;font-size:1.1rem;
+  box-shadow:0 0 16px rgba(124,58,237,.5);
+}
+.btn-gold{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(180deg,var(--gold2),var(--gold) 40%,var(--gold-d));
+  color:#1a0a00;font-weight:800;font-size:.9rem;padding:11px 18px;border-radius:999px;border:0;
+  box-shadow:0 4px 20px rgba(245,197,66,.4),inset 0 1px 0 rgba(255,255,255,.35);
+  cursor:pointer;white-space:nowrap;
+}
+.btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.06);color:var(--txt);font-weight:700;font-size:.9rem;
+  padding:11px 18px;border-radius:999px;border:1px solid var(--line);cursor:pointer;
+}
+.menu-btn{
+  width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);color:var(--txt);display:grid;place-items:center;font-size:1.2rem;cursor:pointer;flex:none;
+}
+
+/* update */
+.upd{position:relative;z-index:49;text-align:center}
+.upd .tape{height:12px;background:repeating-linear-gradient(-45deg,#f5c542 0 12px,#1a0a2e 12px 24px)}
+.upd-body{
+  display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;
+  background:linear-gradient(90deg,rgba(255,179,0,.14),rgba(139,92,246,.22),rgba(255,179,0,.14));
+  border-bottom:1px solid rgba(245,197,66,.35);
+}
+.upd-body p{font-size:.88rem;font-weight:700;color:var(--gold2);line-height:1.55}
+.upd-body p small{display:block;color:var(--mut);font-weight:500;font-size:.78rem}
+.mini{display:flex;flex-direction:column;gap:3px;padding:5px 4px;border-radius:8px;background:#1c0f3a;border:1px solid var(--line);flex:none}
+.mini i{width:9px;height:9px;border-radius:50%;background:#2a1d44;display:block}
+.mini i.a{animation:miniblink 1s steps(1,end) infinite}
+.mini.alt i.a{animation-delay:.5s}
+@keyframes miniblink{0%,49.9%{background:#ffb300;box-shadow:0 0 8px 2px rgba(255,179,0,.8)}50%,100%{background:#3a2a10;box-shadow:none}}
+
+/* coming soon - compact top */
+.cs-hero{
+  position:relative;z-index:1;text-align:center;
+  padding:14px 16px 22px;max-width:480px;margin:0 auto;
+}
+.cs-logo{
+  width:118px;height:118px;margin:0 auto 14px;border-radius:50%;
+  background:linear-gradient(150deg,#5ad4ff 0%,#2AABEE 38%,#1780b8 100%);
+  box-shadow:
+    0 0 0 5px rgba(42,171,238,.22),
+    0 0 0 11px rgba(42,171,238,.08),
+    0 14px 34px rgba(0,40,80,.5),
+    inset 0 4px 12px rgba(255,255,255,.4),
+    inset 0 -10px 20px rgba(0,50,90,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;position:relative;
+  animation:logoPulse 3s ease-in-out infinite;
+}
+.cs-logo::after{
+  content:"";position:absolute;inset:-2px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.32);pointer-events:none;
+}
+.cs-logo svg{
+  width:40px;height:40px;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));
+}
+.cs-mark{
+  position:static;transform:none;margin-top:1px;
+  background:transparent;border:0;box-shadow:none;padding:0;
+  color:#fff;font-weight:900;font-size:.72rem;letter-spacing:.4px;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.35),
+    0 -1px 0 rgba(0,60,100,.35),
+    0 2px 4px rgba(0,0,0,.25);
+  white-space:nowrap;line-height:1;
+}
+@keyframes logoPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cs-title{
+  font-size:clamp(1.35rem,4.8vw,1.75rem);font-weight:900;line-height:1.35;margin:14px 0 6px;
+  background:linear-gradient(135deg,#fff 20%,var(--gold2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cs-sub{color:var(--mut);font-size:.9rem;max-width:320px;margin:0 auto 12px;line-height:1.65}
+.cs-sub b{color:var(--gold2)}
+.cs-panel{
+  margin:12px auto 0;max-width:340px;
+  background:linear-gradient(160deg,rgba(42,171,238,.2),rgba(30,12,60,.9));
+  border:1px solid rgba(42,171,238,.4);border-radius:18px;padding:14px 12px;
+  box-shadow:0 12px 32px rgba(0,0,0,.35);position:relative;overflow:hidden;
+}
+.cs-panel::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,#2AABEE,var(--gold2),transparent);
+}
+.cs-panel h2{font-size:1.02rem;font-weight:900;color:#7dd3fc;margin:4px 0}
+.cs-panel p{color:var(--mut);font-size:.84rem;line-height:1.65}
+.cs-team{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  padding:6px 12px;border-radius:999px;font-size:.78rem;font-weight:800;color:#bae6fd;
+  background:rgba(42,171,238,.14);border:1px solid rgba(42,171,238,.35);
+}
+.cs-actions{display:flex;flex-direction:column;gap:8px;max-width:260px;margin:14px auto 0}
+.cs-actions a{width:100%;padding:12px 16px;text-align:center}
+.cs-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
+.cs-chips span{
+  font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(167,139,250,.25);color:var(--purple2);
+}
+.cs-row{display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* layout */
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:8px 16px 100px}
+section{margin-bottom:44px;scroll-margin-top:70px}
+.sec-label{text-align:center;color:var(--purple2);font-size:.82rem;font-weight:600;margin-bottom:6px}
+.sec-title{text-align:center;font-size:clamp(1.25rem,4vw,1.65rem);font-weight:900;line-height:1.4;margin-bottom:8px}
+.sec-sub{text-align:center;color:var(--mut);font-size:.9rem;margin-bottom:18px;max-width:460px;margin-inline:auto}
+
+/* gifts */
+.gc-tabs{display:flex;gap:8px;overflow-x:auto;margin:12px 0 8px;scrollbar-width:none}
+.gc-tabs::-webkit-scrollbar{display:none}
+.gc-tabs button{
+  flex:none;font:inherit;font-size:.8rem;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer;
+  color:var(--purple2);background:rgba(139,92,246,.12);border:1px solid var(--line);
+}
+.gc-tabs button.on{color:#1a0a00;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent}
+.gc-row{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 12px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.gc{
+  flex:none;width:142px;scroll-snap-align:start;position:relative;border-radius:18px;overflow:hidden;
+  background:linear-gradient(165deg,#2a1552,#140a2c);border:1px solid var(--line);
+  box-shadow:0 10px 26px rgba(0,0,0,.4);transition:transform .25s;
+}
+.gc:hover{transform:translateY(-4px)}
+.gc.legend{border-color:rgba(245,197,66,.55)}
+.gc.epic{border-color:rgba(167,139,250,.5)}
+.gc video,.gc img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#0e0620}
+.gc .gr{
+  position:absolute;top:8px;right:8px;z-index:2;font-size:.65rem;font-weight:800;
+  padding:2px 8px;border-radius:999px;background:rgba(10,4,24,.75);color:var(--purple2);
+}
+.gc.legend .gr{color:#1a0a00;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.gc figcaption{padding:8px;text-align:center}
+.gc figcaption b{display:block;font-size:.75rem;font-weight:800;direction:ltr}
+.gc figcaption small{color:var(--gold2);font-weight:700;font-size:.75rem}
+.gc-hint{text-align:center;color:var(--mut);font-size:.78rem}
+
+/* features */
+.feat-stack{display:grid;gap:12px}
+.feat-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;
+  backdrop-filter:blur(8px);transition:transform .2s,border-color .2s;
+}
+.feat-card:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.45)}
+.feat-card .icon-box{
+  width:44px;height:44px;border-radius:12px;margin-bottom:10px;margin-inline-start:auto;
+  background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(88,28,180,.25));
+  border:1px solid rgba(167,139,250,.3);display:grid;place-items:center;font-size:1.3rem;overflow:hidden;
+}
+.feat-card .icon-box img{width:26px;height:26px;object-fit:contain}
+.feat-card h3{font-size:1.05rem;font-weight:800;margin-bottom:4px;text-align:right}
+.feat-card p{color:var(--mut);font-size:.86rem;text-align:right;line-height:1.7}
+
+/* guide timeline */
+.guide-timeline{position:relative;margin-top:16px}
+.guide-timeline::before{
+  content:"";position:absolute;top:10px;bottom:10px;right:21px;width:3px;
+  background:linear-gradient(180deg,var(--gold2),var(--purple),rgba(139,92,246,.15));border-radius:4px;
+}
+.gt-step{display:grid;grid-template-columns:44px 1fr;gap:12px;padding-bottom:16px}
+.gt-step:last-child{padding-bottom:0}
+.gt-num{
+  position:relative;z-index:1;width:44px;height:44px;border-radius:14px;
+  display:grid;place-items:center;font-weight:900;color:#1a0a00;
+  background:linear-gradient(145deg,var(--gold2),var(--gold-d));
+  box-shadow:0 6px 18px rgba(245,197,66,.35),0 0 0 3px rgba(14,6,32,.9);
+}
+.gt-body{
+  background:linear-gradient(145deg,rgba(50,24,96,.55),rgba(22,10,48,.85));
+  border:1px solid rgba(167,139,250,.28);border-radius:16px;padding:14px;
+}
+.gt-body h3{font-size:.98rem;font-weight:900;margin-bottom:4px}
+.gt-body p{color:var(--mut);font-size:.85rem;line-height:1.7;margin:0}
+.gt-tag{
+  display:inline-block;margin-top:8px;font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:999px;
+  background:rgba(139,92,246,.18);color:var(--purple2);border:1px solid rgba(167,139,250,.3);
+}
+.tip-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+@media(max-width:420px){.tip-row{grid-template-columns:1fr}}
+.tip-pill{
+  display:flex;gap:8px;align-items:flex-start;padding:11px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(167,139,250,.2);
+}
+.tip-pill i{font-style:normal;font-size:1.2rem}
+.tip-pill b{display:block;font-size:.82rem}
+.tip-pill span{font-size:.75rem;color:var(--mut);line-height:1.5}
+
+/* faq */
+.faq-grid{display:grid;gap:10px;margin-top:14px}
+.faq-card{
+  background:linear-gradient(155deg,rgba(42,20,82,.7),rgba(16,8,36,.92));
+  border:1px solid rgba(167,139,250,.25);border-radius:18px;overflow:hidden;
+}
+.faq-card summary{
+  list-style:none;cursor:pointer;padding:14px 16px;font-weight:800;font-size:.92rem;
+  display:flex;align-items:center;gap:10px;user-select:none;
+}
+.faq-card summary::-webkit-details-marker{display:none}
+.faq-q{
+  flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(245,197,66,.25),rgba(139,92,246,.2));
+  border:1px solid rgba(245,197,66,.3);
+}
+.faq-card summary span:last-of-type{flex:1;text-align:right}
+.faq-card summary::after{
+  content:"+";width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  color:var(--gold2);background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.25);font-size:1.1rem;
+}
+.faq-card[open] summary::after{content:"−"}
+.faq-a{padding:0 16px 14px;color:var(--mut);font-size:.86rem;line-height:1.75}
+.faq-a strong{color:var(--gold2)}
+
+/* chart */
+.chart-wrap{
+  background:linear-gradient(160deg,rgba(40,20,80,.75),rgba(18,8,40,.92));
+  border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:16px;margin-top:12px;
+}
+.chart-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:140px}
+.chart-bars i{
+  display:block;border-radius:8px 8px 4px 4px;min-height:8px;position:relative;
+  background:linear-gradient(180deg,#c4b5fd,var(--purple) 40%,#4c1d95);
+  box-shadow:0 0 12px rgba(139,92,246,.3);
+}
+.chart-bars i:nth-child(odd){background:linear-gradient(180deg,var(--gold2),var(--gold) 45%,#92400e)}
+.chart-bars i span{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:.62rem;font-weight:800;white-space:nowrap}
+.chart-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:6px}
+.chart-labels span{text-align:center;font-size:.68rem;color:var(--mut)}
+.chart-sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.chart-sum div{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.chart-sum b{display:block;font-size:1.15rem;color:var(--gold2)}
+.chart-sum span{font-size:.74rem;color:var(--mut)}
+
+/* team */
+.tm-list{display:grid;gap:8px;margin-top:14px}
+.tm-row{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;
+  background:rgba(36,18,72,.6);border:1px solid var(--line);
+}
+.tm-i{font-size:1.3rem;width:36px;text-align:center}
+.tm-row b{display:block;font-size:.95rem}
+.tm-row small{color:var(--mut);font-size:.78rem}
+.tm-r{margin-inline-start:auto;font-size:.72rem;font-weight:800;color:var(--c,#a78bfa);
+  padding:4px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--c,#a78bfa) 40%,transparent);
+  background:color-mix(in srgb,var(--c,#a78bfa) 15%,transparent)}
+
+/* bottom nav */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  display:flex;justify-content:space-around;
+  padding:8px 4px max(10px,env(safe-area-inset-bottom));
+  background:rgba(8,3,18,.94);backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);
+}
+.bottom-nav a{
+  flex:1;text-align:center;font-size:.68rem;color:var(--mut);font-weight:600;
+  padding:6px 2px;max-width:72px;border-radius:10px;
+}
+.bottom-nav a.on,.bottom-nav a:hover{color:var(--gold2)}
+
+footer{position:relative;z-index:1;text-align:center;padding:28px 18px 100px;color:var(--mut);font-size:.78rem}
+footer .name{color:var(--gold2);font-weight:800}
+.ft-thanks{
+  max-width:340px;margin:0 auto 16px;padding:18px 16px;
+  background:linear-gradient(160deg,rgba(42,171,238,.12),rgba(36,18,72,.55));
+  border:1px solid rgba(167,139,250,.28);border-radius:20px;
+  box-shadow:0 12px 32px rgba(0,0,0,.25);
+}
+.ft-line{font-size:.95rem;font-weight:800;color:var(--txt);margin-bottom:6px}
+.ft-team{font-size:.88rem;margin-bottom:4px}
+.ft-maker{font-size:.9rem;color:var(--gold2);font-weight:700}
+.ft-maker b{font-weight:900}
+.ft-copy{margin-top:12px;opacity:.65;font-size:.72rem}
+.maker{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;font-weight:700;font-size:.8rem}
+.maker b{color:var(--gold2)}
+
+.drawer{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer.open{opacity:1;pointer-events:auto}
+.drawer-panel{
+  position:absolute;top:0;right:0;bottom:0;width:min(280px,85vw);background:#160a32;
+  border-left:1px solid var(--line);padding:20px 16px;transform:translateX(100%);transition:transform .25s ease;
+}
+.drawer.open .drawer-panel{transform:translateX(0)}
+.drawer-panel a{display:block;padding:12px 10px;color:var(--txt);font-weight:600;border-radius:10px}
+.drawer-panel a:hover{background:rgba(255,255,255,.06);color:var(--gold2)}
+
+/* phone shots */
+.shots{
+  display:flex;gap:12px;overflow-x:auto;padding:8px 2px 16px;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+}
+.shots::-webkit-scrollbar{display:none}
+.shot{
+  flex:none;width:min(200px,70vw);scroll-snap-align:center;
+  background:#1a0f35;border-radius:24px;border:2px solid rgba(167,139,250,.35);
+  padding:10px 8px 12px;box-shadow:0 16px 40px rgba(0,0,0,.4);
+}
+.shot-notch{width:64px;height:5px;background:#0a0418;border-radius:4px;margin:0 auto 8px}
+.shot-screen{
+  background:#12082a;border-radius:14px;min-height:240px;padding:10px;
+  position:relative;overflow:hidden;
+}
+.shot-label{text-align:center;margin-top:8px;font-size:.75rem;color:var(--mut);font-weight:700}
+.shot-hd{
+  display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;
+  color:var(--gold2);margin-bottom:8px;
+}
+.shot-hd i{font-style:normal}
+.sh-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.sh-av{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.75rem;font-weight:900;color:#fff}
+.sh-bub{
+  background:rgba(255,255,255,.06);border:1px solid rgba(167,139,250,.2);
+  border-radius:12px 12px 12px 4px;padding:7px 10px;font-size:.7rem;line-height:1.5;max-width:130px;
+}
+.sh-bub.me{border-radius:12px 12px 4px 12px;background:rgba(42,171,238,.15);border-color:rgba(42,171,238,.3);margin-inline-start:auto}
+.sh-bub b{display:block;font-size:.65rem;color:var(--purple2);margin-bottom:2px}
+.call-box{
+  text-align:center;padding:18px 8px 10px;
+}
+.call-av{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 10px;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed);
+  display:grid;place-items:center;font-size:1.6rem;
+  box-shadow:0 0 0 4px rgba(167,139,250,.25),0 0 24px rgba(124,58,237,.4);
+  animation:callPulse 2s ease-in-out infinite;
+}
+@keyframes callPulse{0%,100%{box-shadow:0 0 0 4px rgba(167,139,250,.25),0 0 24px rgba(124,58,237,.35)}50%{box-shadow:0 0 0 8px rgba(167,139,250,.15),0 0 32px rgba(124,58,237,.5)}}
+.call-name{font-weight:900;font-size:.9rem}
+.call-st{color:#6ee7a0;font-size:.72rem;font-weight:700;margin:4px 0 14px}
+.call-btns{display:flex;justify-content:center;gap:12px}
+.call-btns span{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.1rem;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+}
+.call-btns span.end{background:#ef4444;border-color:#f87171}
+.music-card{
+  background:linear-gradient(160deg,rgba(88,28,180,.5),rgba(20,10,40,.95));
+  border-radius:14px;padding:14px 12px;margin-top:6px;
+  border:1px solid rgba(167,139,250,.3);
+}
+.music-card .eq{display:flex;align-items:flex-end;gap:3px;height:28px;margin:10px 0}
+.music-card .eq i{
+  flex:1;border-radius:3px;background:linear-gradient(180deg,var(--gold2),var(--purple));
+  animation:eq 1.1s ease-in-out infinite;
+}
+.music-card .eq i:nth-child(1){height:40%;animation-delay:0s}
+.music-card .eq i:nth-child(2){height:70%;animation-delay:.1s}
+.music-card .eq i:nth-child(3){height:100%;animation-delay:.2s}
+.music-card .eq i:nth-child(4){height:55%;animation-delay:.15s}
+.music-card .eq i:nth-child(5){height:80%;animation-delay:.05s}
+.music-card .eq i:nth-child(6){height:45%;animation-delay:.25s}
+@keyframes eq{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.45)}}
+.music-card b{display:block;font-size:.8rem}
+.music-card small{color:var(--mut);font-size:.7rem}
+.pv-bar{
+  display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:8px;
+  border-bottom:1px solid rgba(167,139,250,.2);
+}
+.pv-bar .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#a78bfa);display:grid;place-items:center;font-size:.85rem}
+.board-mini{
+  height:110px;border-radius:12px;margin:8px 0;
+  background:#0d2818;display:grid;place-items:center;position:relative;
+}
+.board-mini svg{width:70%;opacity:.9}
+
+</style>
+</head>
+<body>
+<div class="granite-shine" aria-hidden="true"></div>
+
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="منو">☰</button>
+  <div class="brand"><span class="logo-dot">🎨</span><span>پرو چت</span></div>
+  <a class="btn-gold" href="./index.html">ورود به نسخه تحت وب</a>
+</header>
+
+<div class="upd" role="status">
+  <div class="tape"></div>
+  <div class="upd-body">
+    <div class="mini" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+    <p>بازی در حال آپدیته<small>بعد از آپدیت با امکانات خفن برمی‌گردیم 🔥</small></p>
+    <div class="mini alt" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+  </div>
+</div>
+
+<div class="drawer" id="drawer">
+  <div class="drawer-panel">
+    <a href="#hero" data-close>خانه</a>
+    <a href="#gifts" data-close>گیفت‌ها</a>
+    <a href="#features" data-close>امکانات</a>
+    <a href="#guide" data-close>راهنما</a>
+    <a href="#chart" data-close>آمار</a>
+    <a href="#team" data-close>تیم</a>
+    <a href="#faq" data-close>سوالات</a>
+    <a href="./index.html" data-close style="color:var(--gold2);margin-top:12px">🚀 شروع بازی</a>
+  </div>
+</div>
+
+<!-- هیرو فشرده؛ بدون فضای سیاه خالی -->
+<section class="cs-hero" id="hero">
+  <div class="cs-logo" aria-label="پرو چت">
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M10 32.5c-.9-.35-.85-1.55.1-1.8L53.5 11.2c.95-.28 1.8.55 1.5 1.45L45.8 51.5c-.22.7-1.1.95-1.65.45L31.5 39.2l-10.2 7.4c-.6.44-1.45.05-1.55-.7l-1.2-9.2L10 32.5z" fill="#fff"/>
+      <path d="M27 36.8 L48.5 15.2 L31.8 39.5z" fill="#B8E8FA"/>
+      <path d="M31.8 39.5 L33.2 51.8c.08.55.8.78 1.15.35L45.8 40.2 31.8 39.5z" fill="#E3F6FD"/>
+    </svg>
+    <span class="cs-mark">پرو چت</span>
+  </div>
+  <h1 class="cs-title">حوالی ۲۹ آبان برمی‌گردیم</h1>
+  <p class="cs-sub">آپدیت بزرگ در راهه — <b>تخته، گیفت، چت و امکانات تازه</b>.</p>
+  <div class="cs-panel">
+    <div class="cs-row">
+      <div class="mini" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+      <h2>در حال بروزرسانی</h2>
+      <div class="mini alt" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+    </div>
+    <p>تا <b style="color:var(--gold2)">۲۹ آبان</b> راهنما و گیفت‌ها همین‌جاست.</p>
+    <div class="cs-team">🚀 تیم پرو چت</div>
+  </div>
+  <div class="cs-actions">
+    <a class="btn-gold" href="#gifts">🎁 گیفت‌ها</a>
+    <a class="btn-ghost" href="#guide">📖 راهنمای بازی</a>
+  </div>
+  <div class="cs-chips">
+    <span>نقاشی زنده</span><span>ویس‌کال</span><span>لیگ</span><span>گیفت</span><span>کلن</span>
+  </div>
+</section>
+
+
+<main class="wrap">
+
+  <section id="look">
+    <p class="sec-label">نگاهی به بازی</p>
+    <h2 class="sec-title">چت، تماس، موسیقی و تخته</h2>
+    <p class="sec-sub">چند صحنه از داخل پرو چت — با انگشت بکش.</p>
+    <div class="shots">
+      <!-- چت روم -->
+      <div class="shot">
+        <div class="shot-notch"></div>
+        <div class="shot-screen">
+          <div class="shot-hd"><i>💬</i> چت روم عمومی</div>
+          <div class="sh-row"><div class="sh-av" style="background:#f59e0b">س</div><div class="sh-bub"><b>سارا</b>کی دوئل می‌زنه؟ 😄</div></div>
+          <div class="sh-row"><div class="sh-av" style="background:#3b82f6">ا</div><div class="sh-bub"><b>امیر</b>من پایه‌ام، بریم</div></div>
+          <div class="sh-row"><div class="sh-av" style="background:#a78bfa">ن</div><div class="sh-bub"><b>نگار</b>🎮 دعوت به امتیازی</div></div>
+          <div class="sh-row"><div class="sh-bub me">منم هستم 🔥</div></div>
+        </div>
+        <div class="shot-label">چت روم</div>
+      </div>
+      <!-- پیوی -->
+      <div class="shot">
+        <div class="shot-notch"></div>
+        <div class="shot-screen">
+          <div class="pv-bar"><div class="av">د</div><div><b style="font-size:.8rem">دینا</b><div style="font-size:.65rem;color:#6ee7a0">آنلاین</div></div></div>
+          <div class="sh-row"><div class="sh-bub"><b>دینا</b>فردا آپدیت میاد 👀</div></div>
+          <div class="sh-row"><div class="sh-bub me">آره حوالی ۲۹ آبان</div></div>
+          <div class="sh-row"><div class="sh-bub"><b>دینا</b>ویس بفرست 🎤</div></div>
+          <div class="sh-row"><div class="sh-bub me">☎ الان زنگ می‌زنم</div></div>
+        </div>
+        <div class="shot-label">پیوی</div>
+      </div>
+      <!-- تماس -->
+      <div class="shot">
+        <div class="shot-notch"></div>
+        <div class="shot-screen">
+          <div class="call-box">
+            <div class="call-av">🎧</div>
+            <div class="call-name">ویس‌کال گروهی</div>
+            <div class="call-st">● ۴ نفر متصل</div>
+            <div class="call-btns">
+              <span>🔇</span><span>🎤</span><span class="end">📞</span>
+            </div>
+          </div>
+        </div>
+        <div class="shot-label">تماس صوتی</div>
+      </div>
+      <!-- موسیقی -->
+      <div class="shot">
+        <div class="shot-notch"></div>
+        <div class="shot-screen">
+          <div class="shot-hd"><i>🎵</i> در حال پخش</div>
+          <div class="music-card">
+            <b>Night Drive · Synth</b>
+            <small>اشتراک‌گذاری در چت</small>
+            <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <small>۰:۴۲ / ۳:۱۵</small>
+          </div>
+          <div class="sh-row" style="margin-top:12px"><div class="sh-bub me">اینو گوش کن 🔥</div></div>
+        </div>
+        <div class="shot-label">موسیقی</div>
+      </div>
+      <!-- تخته -->
+      <div class="shot">
+        <div class="shot-notch"></div>
+        <div class="shot-screen">
+          <div class="shot-hd"><i>🎨</i> دور ۲ · ⏱ ۱۸</div>
+          <div class="board-mini">
+            <svg viewBox="0 0 100 70" fill="none" stroke-linecap="round" stroke-width="2.8">
+              <circle cx="50" cy="22" r="12" stroke="#f472b6"/>
+              <path d="M50 34 L50 48 M38 40 L62 40" stroke="#fbbf24"/>
+              <path d="M35 55 Q50 62 65 55" stroke="#34d399"/>
+            </svg>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">
+            <span style="font-size:.65rem;padding:3px 8px;border-radius:8px;background:rgba(52,211,153,.15);color:#6ee7a0;border:1px solid rgba(52,211,153,.3)">درخت ✓</span>
+            <span style="font-size:.65rem;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--mut)">خانه</span>
+            <span style="font-size:.65rem;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--mut)">ماشین</span>
+          </div>
+        </div>
+        <div class="shot-label">تخته نقاشی</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gifts">
+    <p class="sec-label">فروشگاه گیفت</p>
+    <h2 class="sec-title">گیفت‌های واقعی بازی</h2>
+    <p class="sec-sub">ویدیو از ریپوی گیت‌هاب — اسکرول افقی.</p>
+    <div class="gc-tabs" id="giftTabs"></div>
+    <div class="gc-row" id="giftRow"></div>
+    <p class="gc-hint" id="giftHint">بارگذاری…</p>
+  </section>
+
+  <section id="features">
+    <p class="sec-label">امکانات</p>
+    <h2 class="sec-title">هرچی از یه بازی نقاشی می‌خوای</h2>
+    <p class="sec-sub">از تخته زنده تا لیگ و فروشگاه.</p>
+    <div class="feat-stack">
+      <div class="feat-card"><div class="icon-box">🎨</div><h3>نقاشی آنلاین زنده</h3><p>نوبتی می‌کشی؛ بقیه همون لحظه می‌بینن و حدس می‌زنن. سرعت = امتیاز بیشتر.</p></div>
+      <div class="feat-card"><div class="icon-box">🏅</div><h3>لیگ و جام</h3><p>از سایه‌نویس تا خداوند قلم؛ ۱۰ لیگ با حلقه و رنگ مخصوص.</p></div>
+      <div class="feat-card"><div class="icon-box">💬</div><h3>چت‌روم و پیوی</h3><p>ویس، عکس، استیکر، پیام ناپدیدشونده و دعوت به بازی.</p></div>
+      <div class="feat-card"><div class="icon-box">📞</div><h3>تماس و ویس‌کال</h3><p>تماس خصوصی و ویس‌کال گروهی تا ۸ نفر وسط بازی.</p></div>
+      <div class="feat-card"><div class="icon-box">🎁</div><h3>فروشگاه و گیفت</h3><p>کارت کلکسیون، هاله، افکت و هدیه به دوستان.</p></div>
+      <div class="feat-card"><div class="icon-box">🏰</div><h3>کلن</h3><p>تا ۳۰ نفر؛ رقابت با امتیاز اعضا.</p></div>
+    </div>
+  </section>
+
+  <section id="guide">
+    <p class="sec-label">راهنمای شروع</p>
+    <h2 class="sec-title">مسیر قهرمانی روی تخته</h2>
+    <p class="sec-sub">پنج ایستگاه تا اولین جام.</p>
+    <div class="guide-timeline">
+      <div class="gt-step"><div class="gt-num">۱</div><div class="gt-body"><h3>🎮 ورود و پروفایل</h3><p>اسم و آواتار بساز تا دوستات پیدات کنن.</p><span class="gt-tag">۳۰ ثانیه اول</span></div></div>
+      <div class="gt-step"><div class="gt-num">۲</div><div class="gt-body"><h3>🎯 انتخاب حالت</h3><p>برای شروع «امتیازی» بهترین گزینه‌ست.</p><span class="gt-tag">۶ حالت</span></div></div>
+      <div class="gt-step"><div class="gt-num">۳</div><div class="gt-body"><h3>✏️ نوبت نقاشی</h3><p>اول شکل کلی، بعد جزئیات — وضوح مهم‌تر از زیباییه.</p><span class="gt-tag">نکته طلایی</span></div></div>
+      <div class="gt-step"><div class="gt-num">۴</div><div class="gt-body"><h3>⚡ حدس سریع</h3><p>سه غلط در یک دور = قطع حدس. سرعت امتیاز می‌آره.</p><span class="gt-tag">هر ثانیه مهمه</span></div></div>
+      <div class="gt-step"><div class="gt-num">۵</div><div class="gt-body"><h3>🏆 جام و الماس</h3><p>بازی سریع جام می‌ده؛ الماس روزانه تا سقف ۴۰۰.</p><span class="gt-tag">پیشرفت</span></div></div>
+    </div>
+    <div class="tip-row">
+      <div class="tip-pill"><i>💡</i><div><b>اول امتیازی</b><span>بعد برای هیجان حذفی بزن.</span></div></div>
+      <div class="tip-pill"><i>🎧</i><div><b>ویس‌کال</b><span>با رفیق حرف بزن و همزمان نقاشی کن.</span></div></div>
+      <div class="tip-pill"><i>🛡️</i><div><b>گزارش 🚩</b><span>محتوای بد را سریع بفرست.</span></div></div>
+      <div class="tip-pill"><i>👑</i><div><b>لیگ</b><span>هر برد یک پله تا خداوند قلم.</span></div></div>
+    </div>
+  </section>
+
+  <section id="chart">
+    <p class="sec-label">آمار</p>
+    <h2 class="sec-title">نمودار بازدید</h2>
+    <p class="sec-sub">نمای تقریبی هفت‌روزه.</p>
+    <div class="chart-wrap">
+      <div class="chart-bars" id="chartBars"></div>
+      <div class="chart-labels" id="chartLabels"></div>
+      <div class="chart-sum">
+        <div><b id="chVisits">—</b><span>بازدید هفته</span></div>
+        <div><b id="chUsers">—</b><span>کاربر فعال</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team">
+    <p class="sec-label">تیم</p>
+    <h2 class="sec-title">ناظران و مدیران</h2>
+    <div class="tm-list">
+      <div class="tm-row"><span class="tm-i">👑</span><div><b>ممد فرعون</b><small>سازنده</small></div><span class="tm-r" style="--c:#60a5fa">Owner</span></div>
+      <div class="tm-row"><span class="tm-i">⚡</span><div><b>Dina</b><small>ادمین ارشد · دینا</small></div><span class="tm-r" style="--c:#f5d77a">Admin</span></div>
+      <div class="tm-row"><span class="tm-i">🛡</span><div><b>yazid</b><small>ناظر چت</small></div><span class="tm-r" style="--c:#f87171">Mod</span></div>
+      <div class="tm-row"><span class="tm-i">🎨</span><div><b>walking_dead</b><small>ناظر بازی</small></div><span class="tm-r" style="--c:#a78bfa">Mod</span></div>
+      <div class="tm-row"><span class="tm-i">📢</span><div><b>هستی</b><small>ناظر گزارش</small></div><span class="tm-r" style="--c:#34d399">Mod</span></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <p class="sec-label">مرکز راهنما</p>
+    <h2 class="sec-title">سوال‌های پرتکرار</h2>
+    <div class="faq-grid">
+      <details class="faq-card" open><summary><span class="faq-q">💎</span><span>بازی رایگانه؟</span></summary><div class="faq-a">آره. بازی، چت و لیگ رایگانن. الماس با بازی جمع می‌شه.</div></details>
+      <details class="faq-card"><summary><span class="faq-q">👥</span><span>با دوستام چطور بازی کنم؟</span></summary><div class="faq-a">اتاق دوستانه بساز و <strong>کد دعوت</strong> بفرست.</div></details>
+      <details class="faq-card"><summary><span class="faq-q">🏆</span><span>جام و الماس؟</span></summary><div class="faq-a"><strong>جام</strong> برای لیگ؛ <strong>الماس</strong> برای فروشگاه و تورنمنت.</div></details>
+      <details class="faq-card"><summary><span class="faq-q">📞</span><span>ویس‌کال؟</span></summary><div class="faq-a">تا <strong>۸ نفر</strong> در گروه؛ در پیوی تماس خصوصی.</div></details>
+      <details class="faq-card"><summary><span class="faq-q">🚩</span><span>گزارش محتوا؟</span></summary><div class="faq-a">دکمه 🚩 را بزن تا به ناظرها برسد.</div></details>
+      <details class="faq-card"><summary><span class="faq-q">📱</span><span>نصب لازم است؟</span></summary><div class="faq-a">نه — روی مرورگر اجرا می‌شود. می‌توانی به صفحه اصلی اضافه کنی.</div></details>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="ft-thanks">
+    <p class="ft-line">با سپاس از همراهی شما 💛</p>
+    <p class="ft-team">تیم <span class="name">پرو چت</span></p>
+    <p class="ft-maker">سازنده: <b>ممد فرعون</b></p>
+  </div>
+  <div class="maker">
+    <div class="mini" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+    <span>حوالی ۲۹ آبان دوباره آنلاین می‌شیم</span>
+    <div class="mini alt" aria-hidden="true"><i></i><i class="a"></i><i></i></div>
+  </div>
+  <p class="ft-copy">© همه حقوق برای سازنده محفوظ است</p>
+</footer>
+
+<nav class="bottom-nav">
+  <a href="#gifts">گیفت</a>
+  <a href="#features">امکانات</a>
+  <a href="#guide">راهنما</a>
+  <a href="#chart">آمار</a>
+  <a href="#faq">سوالات</a>
+  <a href="./index.html" style="color:var(--gold2)">ورود</a>
+</nav>
+
+<script>
+const drawer=document.getElementById('drawer');
+document.getElementById('menuBtn').onclick=()=>drawer.classList.add('open');
+drawer.addEventListener('click',e=>{if(e.target===drawer||e.target.hasAttribute('data-close'))drawer.classList.remove('open')});
+
+const secs=['gifts','features','guide','chart','team','faq'].map(id=>document.getElementById(id)).filter(Boolean);
+const navLinks=[...document.querySelectorAll('.bottom-nav a[href^="#"]')];
+window.addEventListener('scroll',()=>{
+  let cur=null;
+  for(const s of secs) if(s.getBoundingClientRect().top<=100) cur=s;
+  navLinks.forEach(a=>a.classList.toggle('on',cur&&a.getAttribute('href')==='#'+cur.id));
+},{passive:true});
+
+/* chart */
+(function(){
+  const bars=document.getElementById('chartBars'),labels=document.getElementById('chartLabels');
+  if(!bars)return;
+  const days=['ش','ی','د','س','چ','پ','ج'],visits=[42,55,48,71,63,88,76],max=Math.max(...visits);
+  bars.innerHTML=visits.map(v=>{
+    const h=Math.max(12,Math.round(v/max*120));
+    return `<i style="height:${h}px"><span>${v}</span></i>`;
+  }).join('');
+  if(labels) labels.innerHTML=days.map(d=>`<span>${d}</span>`).join('');
+  const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+  const sum=visits.reduce((a,b)=>a+b,0);
+  const elV=document.getElementById('chVisits'),elU=document.getElementById('chUsers');
+  if(elV) elV.textContent=fa(sum);
+  if(elU) elU.textContent=fa(Math.round(sum*0.38));
+})();
+
+/* gifts MP4 */
+(function(){
+  const BASES=[
+    'https://mhmdzymy658-crypto.github.io/chatrom1/',
+    'https://cdn.jsdelivr.net/gh/mhmdzymy658-crypto/chatrom1@main/',
+    'https://raw.githubusercontent.com/mhmdzymy658-crypto/chatrom1/main/'
+  ];
+  const CATS=[
+    {id:'all',n:'همه'},{id:'spy',n:'قارچ'},{id:'eye',n:'چشم'},
+    {id:'watch',n:'ساعت'},{id:'rocket',n:'موشک'},{id:'cake',n:'کیک'},{id:'other',n:'بقیه'}
+  ];
+  const ITEMS=[
+    {f:'gifts/spy-agaric-acidic-lemongrass.mp4',n:'Spy Agaric Acidic',p:'۲٬۸۰۰',r:'epic',c:'spy'},
+    {f:'gifts/spy-agaric-pink-neon-indigo.mp4',n:'Spy Agaric Pink',p:'۲٬۹۵۰',r:'epic',c:'spy'},
+    {f:'gifts/spy-agaric-herbalist-khaki.mp4',n:'Spy Agaric Herbalist',p:'۳٬۱۰۰',r:'epic',c:'spy'},
+    {f:'gifts/evil-eye-solar-flare-khaki.mp4',n:'Evil Eye Solar',p:'۳٬۶۰۰',r:'epic',c:'eye'},
+    {f:'gifts/evil-eye-hal-9000-khaki.mp4',n:'Evil Eye HAL',p:'۳٬۶۰۰',r:'epic',c:'eye'},
+    {f:'gifts/swiss-watch-delorean-pacific-cyan.mp4',n:'Swiss Watch',p:'۶٬۵۰۰',r:'legend',c:'watch'},
+    {f:'gifts/heart-locket-synthwave.mp4',n:'Heart Locket',p:'۸٬۰۰۰',r:'legend',c:'other'},
+    {f:'gifts/rocket-pepelatz.mp4',n:'Rocket Pepelatz',p:'۳٬۵۰۰',r:'legend',c:'rocket'},
+    {f:'gifts/rocket-lollipop.mp4',n:'Rocket Lollipop',p:'۱٬۵۰۰',r:'epic',c:'rocket'},
+    {f:'gifts/mousse-cake-harvest-mustard.mp4',n:'Mousse Cake',p:'۸۰۰',r:'epic',c:'cake'},
+    {f:'gifts/lowrider-flamingo.mp4',n:'Lowrider',p:'۱٬۵۰۰',r:'epic',c:'other'},
+    {f:'gifts/icecream-plastic-gold.mp4',n:'Icecream Gold',p:'۳٬۵۰۰',r:'legend',c:'other'},
+    {f:'gifts/box-rocket.webp',n:'Box Rocket',p:'ویژه',r:'legend',c:'rocket',img:1}
+  ];
+  const row=document.getElementById('giftRow'),tabs=document.getElementById('giftTabs'),hint=document.getElementById('giftHint');
+  if(!row)return;
+  let cat='all';
+  function src(it,i){return BASES[i]+it.f}
+  function card(it){
+    const leg=it.r==='legend'?' legend':' epic';
+    const tag=it.r==='legend'?'افسانه':'حماسی';
+    const el=document.createElement('figure');
+    el.className='gc'+leg;
+    if(it.img){
+      el.innerHTML=`<span class="gr">${tag}</span><img alt="" loading="lazy"><figcaption><b>${it.n}</b><small>🪙 ${it.p}</small></figcaption>`;
+      const img=el.querySelector('img');let bi=0;
+      img.onerror=()=>{if(++bi<BASES.length)img.src=src(it,bi);else el.remove()};
+      img.src=src(it,0);
+    }else{
+      el.innerHTML=`<span class="gr">${tag}</span><video muted loop playsinline preload="metadata"></video><figcaption><b>${it.n}</b><small>🪙 ${it.p}</small></figcaption>`;
+      const v=el.querySelector('video');let bi=0;
+      const play=()=>v.play().catch(()=>{});
+      v.onerror=()=>{if(++bi<BASES.length){v.src=src(it,bi);v.load()}else el.remove()};
+      v.onloadeddata=play;
+      v.src=src(it,0);
+      if('IntersectionObserver' in window){
+        new IntersectionObserver(es=>es.forEach(e=>{e.isIntersecting?play():v.pause()}),{threshold:.15}).observe(el);
+      }
+    }
+    return el;
+  }
+  function render(){
+    row.innerHTML='';
+    const list=cat==='all'?ITEMS:ITEMS.filter(x=>x.c===cat);
+    list.forEach(it=>row.appendChild(card(it)));
+    if(hint) hint.textContent=list.length?`${list.length} گیفت`:'—';
+  }
+  if(tabs){
+    tabs.innerHTML=CATS.map(c=>`<button type="button" data-c="${c.id}" class="${c.id===cat?'on':''}">${c.n}</button>`).join('');
+    tabs.onclick=e=>{
+      const b=e.target.closest('button');if(!b)return;
+      cat=b.dataset.c;
+      tabs.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+      render();
+    };
+  }
+  render();
+})();
+</script>
+</body>
+</html>
