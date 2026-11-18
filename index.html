@@ -3165,6 +3165,27 @@ body.pt-on #pt{padding-bottom:env(safe-area-inset-bottom)}
 #gifView .gvx button:active{background:rgba(255,255,255,.26)}
 #gifView .gvx [data-gv=x]{width:42px;height:42px;padding:0;font-size:1.25rem;line-height:1;margin-inline-end:auto}
 .gifp{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0;max-height:46vh;overflow:auto;text-align:start}
+.gifp-local{grid-template-columns:repeat(4,1fr)!important;gap:6px!important;max-height:52vh!important}
+.gif-tile{position:relative;aspect-ratio:1/1;border-radius:16px;overflow:hidden;padding:0;background:rgba(12,28,56,.9);border:1.5px solid rgba(92,179,255,.28);cursor:pointer}
+.gif-tile:active{transform:scale(.94);border-color:var(--gold,#f5b73b)}
+.gif-tile-media{width:100%;height:100%}
+.gif-tile-media video,.gif-tile-media img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.gif-tile .gpt{position:absolute;bottom:0;inset-inline:0;padding:3px 4px;font-size:.62rem;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#e8f2ff;text-align:center;pointer-events:none}
+.gif-sheet-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.gif-sheet-h h3{margin:0;font-size:1.1rem}
+.gif-x{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:1.1rem;cursor:pointer}
+.gif-cost-bar{margin:6px 0 10px;padding:8px 12px;border-radius:12px;background:rgba(76,195,255,.12);border:1px solid rgba(92,179,255,.35);color:#cfe9ff;font-size:.84rem;line-height:1.6}
+.gif-lock-bar{margin:6px 0 10px;padding:10px 12px;border-radius:12px;background:rgba(255,100,120,.12);border:1px solid rgba(255,120,140,.4);color:#ffc9d0;font-size:.86rem;line-height:1.7;text-align:center}
+.gif-url-row{display:flex;gap:8px;margin:8px 0}
+.gif-url-row input{flex:1;min-width:0;background:var(--panel2,#0b1524);border:1px solid var(--line,#1e3a5f);border-radius:12px;padding:10px 12px;color:inherit}
+.gif-url-row .btn{width:auto;padding:10px 16px;flex:none}
+.gif-preview{margin-top:8px}
+.gif-preview .gifw{width:min(220px,70vw);margin:0 auto}
+@media(max-width:420px){.gifp-local{grid-template-columns:repeat(3,1fr)!important}}
+.msg .bub .gifw{width:min(200px,62vw);max-height:240px}
+.msg .bub .gifw video,.msg .bub .gifw img{object-fit:contain;background:transparent}
+.msg.big .gifw,.msg .bub:has(.gifw){background:transparent!important;border-color:transparent!important;box-shadow:none!important;padding:2px!important}
+
 .gifp button{position:relative;aspect-ratio:1/1;border-radius:14px;overflow:hidden;padding:0;background:var(--panel2);border:1.5px solid var(--line)}
 .gifp button:active{transform:scale(.96);border-color:var(--gold)}
 .gifp video,.gifp img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -7932,7 +7953,7 @@ function previewOf(m) {
   }
   if (m.secret) return '🕶 پیام مخفی';
   if (m.vahy) return '✨ وحی';
-  if (m.pm) return '🔒 پیام لینکی'; if (m.ttl) return m.ttl < 0 ? '👁 عکس یک‌بار‌مصرف' : '⏳ پیام ناپدیدشونده'; return m.text || (m.img ? '🖼 تصویر' : m.audio ? (m.music ? '🎵 موزیک' : '🎤 پیام صوتی') : m.game ? '🎮 دعوت به بازی' : m.vc ? '🎧 ویس‌کال' : m.sticker ? ((typeof prxPack==='function'&&prxPack(m.sticker.pack))?'✨ ایموجی پریمیوم':'😊 استیکر') : m.gif ? '🎞 GIF' : ''); }
+  if (m.pm) return '🔒 پیام لینکی'; if (m.ttl) return m.ttl < 0 ? '👁 عکس یک‌بار‌مصرف' : '⏳ پیام ناپدیدشونده'; return m.text || (m.img ? '🖼 تصویر' : m.audio ? (m.music ? '🎵 موزیک' : '🎤 پیام صوتی') : m.game ? '🎮 دعوت به بازی' : m.vc ? '🎧 ویس‌کال' : m.sticker ? ((typeof prxPack==='function'&&prxPack(m.sticker.pack))?'✨ ایموجی پریمیوم':'😊 استیکر') : m.gif ? '🎞 استیکر متحرک' : ''); }
 
 $('msgs').onclick = e => {
   const t = e.target;
@@ -19424,21 +19445,49 @@ function adelModal() {
   };
 }
 
-/* ======================= v1.37.0: GIF ویدئویی (MP4/WebM/GIF خارجی؛ فقط URL ذخیره می‌شود) ======================= */
-/* ⬇️ لینک‌های آماده‌ی بخش GIF را اینجا اضافه کن: { u: 'https://…/file.mp4', t: 'عنوان' } */
-const GIF_PRESETS = [
-  { u: 'https://yourimageshare.com/ib/g13Com2ibG.mp4', t: 'تست' },
-  { u: 'https://yourimageshare.com/ib/Gp6asLs3da.mp4', t: 'GIF ۲' },
-  { u: 'https://yourimageshare.com/ib/77fMhc3F9l.mp4', t: 'GIF ۳' },
-  { u: 'https://yourimageshare.com/ib/1T1gTFRk7L.mp4', t: 'GIF ۴' },
-  { u: 'https://yourimageshare.com/ib/DJ1yaNyQKU.mp4', t: 'GIF ۵' },
-  { u: 'https://yourimageshare.com/ib/JFWjq0H0R6.mp4', t: 'GIF ۶' },
-];
+/* ======================= v1.37.0 + v1.2.1: GIF متحرک محلی (پوشه gifs) + خارجی ======================= */
+const GIF_PACK_ID = 'local-gifs';
+const GIF_PACK_COST = 15000; /* یک‌بار خرید پک استیکر متحرک — ارسال بعد از خرید رایگان */
+const GIF_BASE = (location.pathname.replace(/\/[^/]*$/, '/') || '/') + 'gifs/';
+const gifPackOwned = () => !!(me && ((typeof isAdmin === 'function' && isAdmin()) || ((me.gifPacks || []).map(String).includes(GIF_PACK_ID))));
+/* لیست استیکرهای متحرک محلی از پوشه gifs (001.webm … 080.webm) */
+const LOCAL_GIFS = Array.from({ length: 80 }, (_, i) => {
+  const n = String(i + 1).padStart(3, '0');
+  return { id: n, file: n + '.webm', u: 'gifs/' + n + '.webm', t: 'استیکر ' + n };
+});
+const GIF_PRESETS = []; /* لینک خارجی اختیاری — استیکرهای اصلی از LOCAL_GIFS می‌آیند */
 const GIF_EXT = /\.(mp4|webm|gif)$/i;
+/** آیا مسیر محلی gifs مجاز است؟ */
+function gifIsLocalPath(s) {
+  const t = String(s || '').trim().replace(/^\.\//, '');
+  return /^(?:\/?chatrom1\/)?gifs\/[a-zA-Z0-9._-]+\.(webm|gif|mp4)$/i.test(t)
+    || /^gifs\/[a-zA-Z0-9._-]+\.(webm|gif|mp4)$/i.test(t);
+}
+/** نرمال‌سازی مسیر محلی به شکل ثابت gifs/xxx.webm برای ذخیره در دیتابیس */
+function gifLocalKey(s) {
+  const t = String(s || '').trim();
+  const m = t.match(/(?:^|\/)(gifs\/[a-zA-Z0-9._-]+\.(webm|gif|mp4))$/i);
+  return m ? m[1].replace(/\\/g, '/') : '';
+}
+/** URL قابل پخش در مرورگر (مطلق برای بارگذاری از GitHub Pages) */
+function gifResolveUrl(key) {
+  const k = gifLocalKey(key) || String(key || '').trim();
+  if (!k) return '';
+  if (/^https?:\/\//i.test(k)) return k;
+  // نسبت به مسیر فعلی صفحات (مثلاً /chatrom1/)
+  const base = location.pathname.replace(/\/[^/]*$/, '/') || '/';
+  return location.origin + base + k.replace(/^\//, '');
+}
 function gifSafeUrl(raw) {
   try {
     const s = String(raw || '').trim();
-    if (!s || s.length > 600 || /[\s<>"'`\\]/.test(s)) return '';
+    if (!s || s.length > 600 || /[\s<>"'`]/.test(s)) return '';
+    // مسیر محلی gifs/
+    if (gifIsLocalPath(s) || gifLocalKey(s)) {
+      const key = gifLocalKey(s) || s.replace(/^\//, '');
+      return key; // در دیتابیس همان کلید نسبی ذخیره می‌شود
+    }
+    // URL خارجی https
     const u = new URL(s);
     if (u.protocol !== 'https:' || u.username || u.password) return '';
     const h = u.hostname.toLowerCase();
@@ -19447,21 +19496,29 @@ function gifSafeUrl(raw) {
     return u.href;
   } catch { return ''; }
 }
-const gifIsImg = u => /\.gif$/i.test(new URL(u).pathname);
+const gifIsImg = u => {
+  try {
+    const s = String(u || '');
+    if (/^https?:\/\//i.test(s)) return /\.gif$/i.test(new URL(s).pathname);
+    return /\.gif$/i.test(s);
+  } catch { return false; }
+};
 function gifMedia(u, cls = '') {
-  const s = esc(u);
+  const resolved = gifResolveUrl(u) || String(u || '');
+  const s = esc(resolved);
   return gifIsImg(u)
     ? `<img src="${s}" alt="GIF" loading="lazy" decoding="async" referrerpolicy="no-referrer" ${cls}>`
-    : `<video src="${s}" autoplay loop muted playsinline webkit-playsinline preload="metadata" disablepictureinpicture disableremoteplayback ${cls}></video>`;
+    : `<video src="${s}" autoplay loop muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback ${cls}></video>`;
 }
 /* حافظه‌ی سبک (فقط داخل صفحه): نسبت تصویر و لینک‌های لود‌شده تا با هر رندر مجدد، پرش/چشمک نداشته باشیم */
 const gifAr = new Map(), gifLoaded = new Set(), gifSeen = new Set();
 let gifIO = null;
 function gifHtml(raw) {
   const u = gifSafeUrl(raw);
-  if (!u) return '<div class="gifw bad"><span class="gerr">⚠️ GIF نامعتبر</span></div>';
+  if (!u) return '<div class="gifw bad"><span class="gerr">⚠️ استیکر نامعتبر</span></div>';
   const ar = gifAr.get(u);
-  return `<div class="gifw${gifLoaded.has(u) ? '' : ' gl'}" data-gif="${esc(u)}" role="button" aria-label="باز کردن GIF"${ar ? ` style="--gar:${ar}"` : ''}>${gifMedia(u)}<span class="gbd">GIF</span><span class="gex" aria-hidden="true">⤢</span></div>`;
+  const isLocal = !!gifLocalKey(u);
+  return `<div class="gifw${gifLoaded.has(u) ? '' : ' gl'}${isLocal ? ' gif-stk' : ''}" data-gif="${esc(u)}" role="button" aria-label="استیکر متحرک"${ar ? ` style="--gar:${ar}"` : ''}>${gifMedia(u)}${isLocal ? '' : '<span class="gbd">GIF</span>'}<span class="gex" aria-hidden="true">⤢</span></div>`;
 }
 function gifBad(w) {
   if (!w) return;
@@ -19557,43 +19614,132 @@ function gifSaveToggle(raw) {
   if (gifSavedSet([u, ...a])) { toast('GIF ذخیره شد ✓'); return true; }
   return false;
 }
+async function gifBuyPack() {
+  if (!me) return toast('اول وارد شو');
+  if (gifPackOwned()) return toast('این پک را از قبل داری ✓');
+  if (!(isAdmin() || isPremium(me) || isPremiox(me))) {
+    return toast('🔒 برای خرید پک استیکر متحرک باید اشتراک Premium یا Premiox داشته باشی');
+  }
+  if (coinsOf(me) < GIF_PACK_COST) {
+    return toast('الماس کافی نداری (قیمت پک: ' + fa(GIF_PACK_COST) + ' الماس)');
+  }
+  try {
+    await runTransaction(db, async tx => {
+      const ref = doc(db, 'users', me.uid);
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw 'nouser';
+      const u0 = snap.data();
+      const bal = Math.max(0, Math.floor((+u0.coins || 0) + (+u0.bonus || 0) + (+u0.gin || 0) - (+u0.spent || 0)));
+      if (bal < GIF_PACK_COST) throw 'poor';
+      const packs = new Set([...(u0.gifPacks || []).map(String), GIF_PACK_ID]);
+      tx.update(ref, { gifPacks: [...packs], spent: increment(GIF_PACK_COST) });
+    });
+    me.gifPacks = [...new Set([...(me.gifPacks || []).map(String), GIF_PACK_ID])];
+    me.spent = (me.spent || 0) + GIF_PACK_COST;
+    try { if (users[me.uid]) { users[me.uid].gifPacks = me.gifPacks; users[me.uid].spent = me.spent; } } catch (_) {}
+    try { renderMe?.(); } catch (_) {}
+    toast('✅ پک استیکر متحرک خریداری شد (−' + fa(GIF_PACK_COST) + ' الماس)');
+    gifSheet();
+  } catch (e) {
+    if (e === 'poor') toast('الماس کافی نداری');
+    else toast(errMsg(e) || 'خرید انجام نشد');
+  }
+}
 async function gifSend(raw) {
-  const u = gifSafeUrl(raw); if (!u) return toast('لینک نامعتبر است؛ فقط https با پسوند MP4 / WebM / GIF');
-  const hk = gifHook; closeModal(); gifRecentAdd(u);
-  if (hk) return hk(u);   // ارسال از داخل بازی
-  await sendMsg({ gif: u, text: $('inMsg').value.trim() });
+  const u = gifSafeUrl(raw);
+  if (!u) return toast('استیکر نامعتبر است');
+  // از داخل بازی بدون محدودیت
+  const hk = gifHook;
+  if (hk) { closeModal(); gifRecentAdd(u); return hk(u); }
+
+  if (!me) return toast('اول وارد شو');
+  if (!(isAdmin() || isPremium(me) || isPremiox(me))) {
+    return toast('🔒 برای ارسال استیکر متحرک باید اشتراک Premium یا Premiox داشته باشی');
+  }
+  if (!gifPackOwned()) {
+    return toast('ابتدا پک استیکر متحرک را بخر (قیمت: ' + fa(GIF_PACK_COST) + ' الماس)');
+  }
+  // ارسال رایگان بعد از خرید پک
+  closeModal();
+  try {
+    gifRecentAdd(u);
+    await sendMsg({ gif: u, text: $('inMsg').value.trim() });
+  } catch (e) {
+    toast(errMsg(e) || 'ارسال نشد');
+  }
 }
 function gifSheet() {
-  const tile = (u, t) => `<button type="button" data-gs="${esc(u)}">${gifMedia(u)}${t ? `<span class="gpt">${esc(t)}</span>` : ''}</button>`;
-  const rec = gifRecentGet().filter(u => !GIF_PRESETS.some(p => p.u === u));
-  const sv = gifSavedGet();
-  const svHtml = sv.map(u => `<div class="gst">${tile(u, '')}<span class="gdel" data-gd="${esc(u)}" role="button" aria-label="حذف">✕</span></div>`).join('');
-  const list = GIF_PRESETS.filter(p => gifSafeUrl(p.u)).map(p => tile(gifSafeUrl(p.u), p.t)).concat(rec.map(u => tile(u, 'اخیر'))).join('');
-  openModal(`<h3>🎞 GIF</h3>
-    <div class="sec-t">💾 ذخیره‌شده‌های من</div>
-    <div class="gifp" id="gifSv">${svHtml || '<small style="grid-column:1/-1;color:var(--mut)">هنوز GIFی ذخیره نکرده‌ای. لینک بزن یا GIF داخل چت را باز کن و «ذخیره» بزن.</small>'}</div>
-    <div class="sec-t">🎞 آماده</div>
-    <div class="gifp">${list || '<small style="grid-column:1/-1;color:var(--mut)">هنوز GIF آماده‌ای نیست</small>'}</div>
-    <div class="sec-t">🔗 لینک GIF خودت</div>
-    <div class="gifu"><input id="gifUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="https://…/clip.mp4"><button class="btn ghost" id="gifSave" type="button" disabled>💾 ذخیره</button><button class="btn" id="gifGo" type="button" disabled>ارسال</button></div>
-    <div class="gifpv" id="gifPv"></div>
-    <div class="gifhint">فقط لینک https با پسوند MP4 ، WebM یا GIF. فایل روی همان سرویس می‌ماند؛ GIFهای ذخیره‌شده فقط روی همین دستگاه خودت نگه‌داری می‌شوند و روی سرور چیزی ذخیره نمی‌شود.</div>
-    <div class="acts2"><button class="btn ghost" id="mClose" type="button">بستن</button></div>`);
+  const hasSub = !!(me && (isAdmin() || isPremium(me) || isPremiox(me)));
+  const owned = gifPackOwned();
+  const bal = me ? coinsOf(me) : 0;
+  const canSend = hasSub && owned;
+  const tile = (u, t) => `<button type="button" class="gif-tile" data-gs="${esc(u)}" title="${esc(t || '')}">
+      <div class="gif-tile-media">${gifMedia(u)}</div>
+      ${t ? `<span class="gpt">${esc(t)}</span>` : ''}
+    </button>`;
+  const localList = LOCAL_GIFS.map(p => tile(p.u, p.t)).join('');
+  const rec = gifRecentGet().filter(u => !LOCAL_GIFS.some(p => p.u === u) && gifSafeUrl(u));
+  const recHtml = rec.length ? rec.map(u => tile(u, 'اخیر')).join('') : '';
+
+  let topBar = '';
+  if (!hasSub) {
+    topBar = `<div class="gif-lock-bar">🔒 برای استفاده از استیکر متحرک باید اشتراک <b>Premium</b> یا <b>Premiox</b> داشته باشی</div>`;
+  } else if (!owned) {
+    topBar = `<div class="gif-cost-bar">پک استیکر متحرک · یک‌بار خرید
+      <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <span>قیمت: <b>${coinTxt(GIF_PACK_COST)}</b> · موجودی: ${coinTxt(bal)}</span>
+        <button type="button" class="btn" id="gifBuyBtn" style="width:auto;padding:8px 14px">🛒 خرید پک</button>
+      </div>
+      <small style="opacity:.85">بعد از خرید، ارسال رایگان است</small>
+    </div>`;
+  } else {
+    topBar = `<div class="gif-cost-bar">✅ پک خریداری شده · ارسال <b>رایگان</b></div>`;
+  }
+
+  openModal(`<div class="gif-sheet">
+    <div class="gif-sheet-h">
+      <h3>🎞 استیکر متحرک</h3>
+      <button type="button" class="gif-x" id="mClose" aria-label="بستن">✕</button>
+    </div>
+    ${topBar}
+    <div class="sec-t">✨ پک پرو چت · ${fa(LOCAL_GIFS.length)} استیکر</div>
+    <div class="gifp gifp-local" id="gifLocal">${localList}</div>
+    ${recHtml ? `<div class="sec-t">🕘 اخیر</div><div class="gifp" id="gifRec">${recHtml}</div>` : ''}
+    <div class="sec-t">🔗 لینک خارجی (اختیاری)</div>
+    <div class="gif-url-row">
+      <input id="gifUrl" dir="ltr" placeholder="https://…/file.webm" autocomplete="off">
+      <button type="button" class="btn" id="gifGo" disabled>ارسال</button>
+    </div>
+    <div id="gifPv" class="gif-preview"></div>
+  </div>`, 'gif-modal-card');
+
+  const mc = $('modalCard');
   $('mClose').onclick = closeModal;
-  const mc = $('modalCard'), inp = $('gifUrl'), go = $('gifGo'), sv2 = $('gifSave'), pv = $('gifPv');
-  mc.querySelectorAll('[data-gs]').forEach(b => b.onclick = () => gifSend(b.dataset.gs));
-  mc.querySelectorAll('[data-gd]').forEach(x => x.onclick = e => { e.stopPropagation(); gifSavedSet(gifSavedGet().filter(y => y !== x.dataset.gd)); gifSheet(); });
-  mc.querySelectorAll('.gifp video').forEach(v => { v.muted = true; const p = v.play(); if (p && p.catch) p.catch(() => {}); });
-  inp.oninput = () => {
-    const u = gifSafeUrl(inp.value); go.disabled = !u; sv2.disabled = !u;
-    pv.innerHTML = u ? `<div class="gifw">${gifMedia(u)}</div>` : '';
-    const v = pv.querySelector('video'); if (v) { v.muted = true; v.play?.().catch?.(() => {}); }
-  };
-  inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); if (!go.disabled) gifSend(inp.value); } };
-  go.onclick = () => gifSend(inp.value);
-  sv2.onclick = () => { if (gifSaveToggle(inp.value) !== undefined) { const u = inp.value; gifSheet(); setTimeout(() => { const i = $('gifUrl'); if (i) { i.value = u; i.oninput(); } }, 0); } };
-  if (inp.value.trim() && !gifSafeUrl(inp.value)) toast('لینک نامعتبر است');
+  const buy = $('gifBuyBtn');
+  if (buy) buy.onclick = () => gifBuyPack();
+  mc.querySelectorAll('[data-gs]').forEach(b => {
+    b.onclick = () => {
+      if (!hasSub) return toast('🔒 اشتراک Premium یا Premiox لازم است');
+      if (!owned) return toast('ابتدا پک را بخر (۱۵٬۰۰۰ الماس) — ارسال بعدش رایگان است');
+      gifSend(b.dataset.gs);
+    };
+  });
+  mc.querySelectorAll('.gifp video').forEach(v => {
+    v.muted = true; v.playsInline = true;
+    const p = v.play(); if (p && p.catch) p.catch(() => {});
+  });
+  const inp = $('gifUrl'), go = $('gifGo'), pv = $('gifPv');
+  if (inp) {
+    inp.oninput = () => {
+      const u = gifSafeUrl(inp.value); go.disabled = !u;
+      pv.innerHTML = u ? `<div class="gifw">${gifMedia(u)}</div>` : '';
+      const v = pv.querySelector('video'); if (v) { v.muted = true; v.play?.().catch?.(() => {}); }
+    };
+    inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); if (!go.disabled) gifSend(inp.value); } };
+    go.onclick = () => gifSend(inp.value);
+  }
 }
+
 $('btnGif').onclick = () => { gifHook = null; gifSheet(); };
 
 /* ======================= v1.38.0: پیام لینکی (۳۰ الماس) ======================= */
