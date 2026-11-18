@@ -5055,7 +5055,9 @@ html body .dr-pub em{font-style:normal;color:var(--gold2);font-weight:700;font-s
 html body #nav{inset-inline:12px}
 </style>
 <style id="tgHomeFix">
-html body .coinv .dia{display:inline-block;position:relative;width:1.05em;height:1.05em;vertical-align:-.15em;background:linear-gradient(145deg,#ff8fab,#ff2d55 45%,#c41e3a);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
+html body .coinv .dia{display:inline-block;position:relative;width:1.15em;height:1.15em;vertical-align:-.2em;background:linear-gradient(145deg,#7dd3fc,#38bdf8 40%,#0ea5e9 70%,#0369a1);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);box-shadow:0 0 6px rgba(56,189,248,.55);filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+html body .coinv .dia::after{content:"";position:absolute;inset:22% 28% auto;height:28%;background:linear-gradient(180deg,rgba(255,255,255,.75),transparent);clip-path:polygon(50% 0%,100% 100%,0% 100%);border-radius:1px}
+html body .coinv{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:#7dd3fc}
 html body #hub{overflow-anchor:none}
 html body .hm-row,html body .hm-list,html body .hm-sec{animation:none!important;transition:none!important}
 html body #nav{inset-inline:18px}
@@ -9242,8 +9244,37 @@ function showProfile(uid, tab) {
   const mc = $('modalCard');
   $('pX').onclick = closeModal;
   const menuEl = $('pfMenu');
-  $('pMore').onclick = e => { e.stopPropagation(); menuEl?.classList.toggle('hidden'); };
-  mc.addEventListener('click', e => { if (!e.target.closest('.pf2-menu-wrap')) menuEl?.classList.add('hidden'); });
+  let menuBd = null;
+  const closePfMenu = () => {
+    menuEl?.classList.add('hidden');
+    if (menuBd) { menuBd.remove(); menuBd = null; }
+  };
+  const openPfMenu = () => {
+    if (!menuEl) return;
+    menuEl.classList.remove('hidden');
+    if (!menuBd) {
+      menuBd = document.createElement('div');
+      menuBd.className = 'pf2-menu-backdrop';
+      menuBd.onclick = closePfMenu;
+      document.body.appendChild(menuBd);
+    }
+    // ensure menu is on body so nothing clips it
+    if (menuEl.parentElement !== document.body) {
+      document.body.appendChild(menuEl);
+    }
+  };
+  $('pMore').onclick = e => {
+    e.stopPropagation();
+    if (menuEl?.classList.contains('hidden')) openPfMenu();
+    else closePfMenu();
+  };
+  mc.addEventListener('click', e => {
+    if (!e.target.closest('.pf2-menu-wrap') && !e.target.closest('.pf2-menu')) closePfMenu();
+  });
+  // close when picking an item
+  menuEl?.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => setTimeout(closePfMenu, 30), { once: false });
+  });
 
   setTimeout(() => { try { prxSync(mc); bdgEmoSync(); if (typeof fxeScan === 'function') fxeScan(); } catch (_) {} }, 60);
   mc.querySelectorAll('.pf2-charm[data-prxring]').forEach(el => {
@@ -9527,6 +9558,121 @@ function editProfile() {
   $('pvSave').onclick = $('pvSaveTop').onclick = doSave;
 }
 
+/* ---------- تغییر آیدی (۱۰۰ الماس · هر ۲۴ ساعت یک‌بار) ---------- */
+const HANDLE_CHANGE_COST = 100;
+const HANDLE_CHANGE_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+function openChangeHandleModal() {
+  if (!me) return toast('اول وارد شو');
+  const last = +(me.handleChangedAt || me.lastHandleAt || 0);
+  const left = HANDLE_CHANGE_COOLDOWN_MS - (Date.now() - last);
+  const hoursLeft = left > 0 ? Math.ceil(left / 3600000) : 0;
+  const cur = me.handle ? '@' + me.handle : 'بدون آیدی';
+  const bal = coinsOf(me);
+
+  openModal(`<div class="tgset">
+    <div class="tgset-h"><button type="button" class="back" id="mClose" aria-label="بستن">➜</button><b>آیدی جدید</b></div>
+    <p style="color:var(--mut);font-size:.88rem;line-height:1.9;margin:4px 0 12px">
+      آیدی فعلی: <b style="color:var(--gold)" dir="ltr">${esc(cur)}</b><br>
+      هزینه: <b style="color:#7dd3fc">${coinTxt(HANDLE_CHANGE_COST)}</b>
+      · موجودی تو: ${coinTxt(bal)}
+      ${hoursLeft ? `<br><span style="color:#ff7e88">⏳ تا تغییر بعدی حدود ${fa(hoursLeft)} ساعت مانده</span>` : '<br><span style="color:#7cf5a4">✅ الان می‌تونی آیدی عوض کنی</span>'}
+    </p>
+    <div class="field"><label>آیدی جدید (انگلیسی · حداقل ۳ حرف)</label>
+      <input id="nhHandle" dir="ltr" maxlength="24" autocomplete="off" placeholder="مثل pro_user" value="">
+    </div>
+    <div class="field"><label>رمز عبور فعلی (تأیید هویت)</label>
+      <input id="nhPass" type="password" dir="ltr" autocomplete="current-password" placeholder="رمز ورود حساب">
+    </div>
+    <div class="err" id="nhErr"></div>
+    <div class="acts2">
+      <button class="btn" id="nhOk" ${hoursLeft || bal < HANDLE_CHANGE_COST ? 'disabled style="opacity:.55"' : ''}>ثبت آیدی جدید</button>
+      <button class="btn ghost" id="nhPw">فقط تغییر رمز</button>
+    </div>
+  </div>`);
+
+  $('mClose').onclick = closeModal;
+  $('nhPw').onclick = () => { closeModal(); openPassModal(); };
+  $('nhOk').onclick = async () => {
+    const err = $('nhErr');
+    const raw = ($('nhHandle').value || '').trim().toLowerCase().replace(/^@/, '');
+    const pass = $('nhPass').value || '';
+    if (!/^[a-z0-9_]{3,24}$/.test(raw)) {
+      err.textContent = 'آیدی فقط حروف انگلیسی، عدد و _ · بین ۳ تا ۲۴ کاراکتر';
+      return;
+    }
+    if (raw === (me.handle || '').toLowerCase()) {
+      err.textContent = 'این همان آیدی فعلی توست';
+      return;
+    }
+    if (pass.length < 6) {
+      err.textContent = 'رمز عبور را وارد کن';
+      return;
+    }
+    if (hoursLeft) {
+      err.textContent = 'هر ۲۴ ساعت فقط یک‌بار می‌تونی آیدی عوض کنی';
+      return;
+    }
+    if (coinsOf(me) < HANDLE_CHANGE_COST) {
+      err.textContent = 'الماس کافی نداری (۱۰۰ لازم است)';
+      return;
+    }
+    $('nhOk').disabled = true;
+    err.textContent = 'در حال بررسی…';
+    try {
+      // verify password
+      try {
+        await signInWithEmailAndPassword(auth, emailOf(me.handle || raw), pass);
+      } catch (pe) {
+        // try with current handle email format
+        try {
+          await signInWithEmailAndPassword(auth, emailOf(me.handle), pass);
+        } catch {
+          throw { code: 'auth/wrong-password' };
+        }
+      }
+      await runTransaction(db, async tx => {
+        const newRef = doc(db, 'handles', raw);
+        if ((await tx.get(newRef)).exists()) throw 'taken';
+        const uref = doc(db, 'users', me.uid);
+        const us = await tx.get(uref);
+        if (!us.exists()) throw 'nouser';
+        const u = us.data();
+        const balNow = Math.max(0, Math.floor((+u.coins || 0) + (+u.bonus || 0) + (+u.gin || 0) - (+u.spent || 0)));
+        if (balNow < HANDLE_CHANGE_COST) throw 'poor';
+        const lastAt = +(u.handleChangedAt || 0);
+        if (Date.now() - lastAt < HANDLE_CHANGE_COOLDOWN_MS) throw 'cooldown';
+        // free old handle
+        if (u.handle) {
+          try { tx.delete(doc(db, 'handles', String(u.handle).toLowerCase())); } catch (_) {}
+        }
+        tx.set(newRef, { uid: me.uid, at: Date.now() });
+        tx.update(uref, {
+          handle: raw,
+          spent: increment(HANDLE_CHANGE_COST),
+          handleChangedAt: Date.now()
+        });
+      });
+      me.handle = raw;
+      me.spent = (me.spent || 0) + HANDLE_CHANGE_COST;
+      me.handleChangedAt = Date.now();
+      try { users[me.uid] = { ...users[me.uid], ...me }; } catch (_) {}
+      closeModal();
+      toast('✅ آیدی جدید ثبت شد: @' + raw);
+      try { renderMe(); } catch (_) {}
+      try { hubPaint(); } catch (_) {}
+    } catch (e) {
+      $('nhOk').disabled = false;
+      if (e === 'taken') err.textContent = 'این آیدی قبلاً گرفته شده';
+      else if (e === 'poor') err.textContent = 'الماس کافی نداری';
+      else if (e === 'cooldown') err.textContent = 'هنوز ۲۴ ساعت از تغییر قبلی نگذشته';
+      else if (e?.code === 'auth/wrong-password' || e?.code === 'auth/invalid-credential')
+        err.textContent = 'رمز عبور اشتباه است';
+      else err.textContent = (e?.message || errMsg(e) || 'انجام نشد');
+    }
+  };
+}
+
 /* تنظیمات — سبک تلگرام */
 function openTgSettings(page) {
   page = page || 'main';
@@ -9610,7 +9756,7 @@ function openTgSettings(page) {
     $('tgBack').onclick = () => openTgSettings('main');
     $('tgEditName').onclick = () => { closeModal(); try { editProfile(); } catch(_){} };
     $('tgEditBio').onclick = () => { closeModal(); try { editProfile(); } catch(_){} };
-    $('tgUser').onclick = () => { closeModal(); try { editProfile(); } catch(_){} };
+    $('tgUser').onclick = () => { closeModal(); try { openChangeHandleModal(); } catch(e){ console.warn(e); toast('باز نشد'); } };
     $('tgBday').onclick = () => { closeModal(); try { editProfile(); } catch(_){} };
     $('tgPhone').onclick = () => toast(phone ? ('شماره فعلی: ' + phone) : 'شماره تلفن هنوز به حساب وصل نشده');
     $('tgPw').onclick = () => openPassModal();
@@ -21545,20 +21691,30 @@ html.lite [class*="h-pf"]::before,html.lite [class*="h-pf"]::after{animation:non
   font-size:.95rem;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.45);
 }
 .pf2-cbtn:active{transform:scale(.94)}
-.pf2-menu-wrap{position:relative}
-.pf2-menu{
-  position:absolute;top:46px;left:0;min-width:210px;z-index:40;
-  background:linear-gradient(180deg,#0f2040,#081226);
-  border:1px solid rgba(92,179,255,.45);border-radius:16px;
-  padding:6px;display:flex;flex-direction:column;gap:3px;
-  box-shadow:0 18px 42px rgba(0,0,0,.85);
+.pf2-menu-wrap{position:relative;z-index:80}
+.pf2-menu-backdrop{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(2,8,20,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
 }
+.pf2-menu{
+  position:fixed;z-index:9999;
+  top:max(12px, env(safe-area-inset-top));
+  left:12px;right:12px;
+  width:auto;max-width:340px;margin-inline:auto;
+  background:linear-gradient(180deg,#122746 0%,#0a1730 100%);
+  border:1.5px solid rgba(92,179,255,.55);border-radius:20px;
+  padding:10px 8px;display:flex;flex-direction:column;gap:4px;
+  box-shadow:0 24px 60px rgba(0,0,0,.85),0 0 28px rgba(56,189,248,.18);
+  animation:pfMenuIn .18s ease-out;
+}
+@keyframes pfMenuIn{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:none}}
 .pf2-menu.hidden{display:none}
 .pf2-menu button{
-  width:100%;text-align:right;background:transparent;border:0;color:#eef4ff;
-  font:inherit;font-size:.82rem;padding:9px 10px;border-radius:10px;cursor:pointer;
+  width:100%;text-align:right;background:rgba(255,255,255,.03);border:0;color:#eef4ff;
+  font:inherit;font-size:.9rem;font-weight:700;padding:13px 14px;border-radius:14px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
 }
-.pf2-menu button:hover{background:rgba(76,195,255,.14)}
+.pf2-menu button:hover,.pf2-menu button:active{background:rgba(76,195,255,.16)}
 .pf2-menu button.danger{color:#ff7e88}
 
 .pf2-hero{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px}
